@@ -28,18 +28,24 @@ dest_id and dest_key are API keys for amazon s3 account
 nsr:
   www.nederlandssoortenregister.nl:
     serveraliases: 'nederlandssoortenregister.nl'
+    aliases:
+      - alias: '/linnaeus_ng'
+        path: '/var/www/nsr/www'
     docroot: /var/www/nsr
     port: 80
     ssl: no
     serveradmin: aut@naturalis.nl
+    priority: 10
 nsr::backup: true
 nsr::backuphour: 5
 nsr::backupminute: 5
 nsr::backupdir: '/tmp/backups'
 nsr::dest_id: 'provider_id'
 nsr::dest_key: 'provider_key'
-nsr::bucket: 'nsr'
-nsr::ftpserver: true
+nsr::bucket: 'linuxbackups'
+nsr::bucketfolder: 'nsr'
+nsr::userDbPassword: 'database password'
+nsr::adminDbPassword: 'database password'
 
 ```
 Puppet code
@@ -48,7 +54,7 @@ class { nsr: }
 ```
 Result
 -------------
-Working webserver, restored from subversion. with daily backup.
+Working webserver with mysql, restored from duplicity, code from subversion and config files based on templates. with daily duplicity backup.
 
 Limitations
 -------------

@@ -4,6 +4,7 @@ class nsr::restore (
   $version = undef,
   $restore_directory = '/tmp/restore/',
   $bucket = undef,
+  $folder = undef,
   $dest_id = undef,
   $dest_key = undef,
   $cloud = undef,
@@ -19,6 +20,7 @@ class nsr::restore (
   duplicity::restore { 'backup':
     directory      => $restore_directory,
     bucket         => $bucket,
+    folder         => $folder,
     dest_id        => $dest_id,
     dest_key       => $dest_key,
     cloud          => $cloud,

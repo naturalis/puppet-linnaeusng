@@ -4,6 +4,7 @@ class nsr::backup (
   $backuphour = undef,
   $backupminute = undef,
   $backupdir = undef,
+  $folder = undef,
   $bucket = undef,
   $dest_id = undef,
   $dest_key = undef,
@@ -17,6 +18,7 @@ class nsr::backup (
 
   duplicity { 'backup':
     directory          => $backupdir,
+    folder             => $folder,
     bucket             => $bucket,
     dest_id            => $dest_id,
     dest_key           => $dest_key,
@@ -26,11 +28,11 @@ class nsr::backup (
     minute             => $backupminute,
     full_if_older_than => $full_if_older_than,
     remove_older_than  => $remove_older_than,
-    pre_command        => '/usr/local/sbin/filebackup.sh && /usr/local/sbin/filebackup.sh',
+    pre_command        => '/usr/local/sbin/mysqlbackup.sh && /usr/local/sbin/filebackup.sh',
     require            => Class['mysql::backup'],
   }
 
-  file { "/usr/local/sbin/configbackup.sh":
+  file { "/usr/local/sbin/filebackup.sh":
     content => template('nsr/filebackup.sh.erb'),
     mode    => '0700',
   }

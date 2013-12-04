@@ -1,9 +1,4 @@
 #/bin/sh
-rsync -r /tmp/restore/custom /var/www/nsr/app/style/custom 
-rsync -r /tmp/restore/project /var/www/nsr/shared/media/project 
-chown -R webusers:webusers /var/www
-
-
-
-
-
+rsync -r /tmp/restore/custom <%= @coderoot -%>/www/app/style/custom
+rsync -r /tmp/restore/project  <%= @coderoot -%>/www/shared/media/project
+chown -R root:<%= @apachegroup -%> /var/www
