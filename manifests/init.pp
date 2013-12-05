@@ -42,23 +42,21 @@ class nsr (
                           '/var/www/nsr/www/admin/templates/cache'],
   $apachegroup         = 'www-data',
   $userDbHost          = 'localhost',
-  $userDbUser,
-  $userDbPassword,
   $userDbName          = 'nsr',
   $userDbPrefix        = 'lng_nsr_',
   $userDbCharset       = 'utf8',
   $adminDbHost         = 'localhost',
-  $adminDbUser,
-  $adminDbPassword,
   $adminDbName         = 'nsr',
   $adminDbPrefix       = 'lng_nsr_',
   $adminDbCharset      = 'utf8',
-  $mysqlRootPassword,
+  $mysqlUser           = 'linnaeus_user',
+  $mysqlPassword,
   $appVersion          = '1.0.0',
 ) {
 
   include concat::setup
   include mysql::php
+  include mysql::server
 
   class { 'apache':
     default_mods => true,
@@ -69,11 +67,6 @@ class nsr (
 
   # Create all virtual hosts from hiera
   class { 'nsr::instances': }
-
-  # Create mysql server
-  class { 'mysql::server':
-    config_hash => { 'root_password' => $mysqlRootPassword }
-  }
 
   # Add hostname to /etc/hosts, svn checkout requires a resolvable hostname
   host { 'localhost':
@@ -121,9 +114,16 @@ class nsr (
   }
 
   if ($backup == true) or ($restore == true) {
+    database { $userDbName:
+      ensure         => 'present',
+      charset        => $userDbCharset,
+    }->
+    database_grant { "backupuser@localhost/${userDbName}":
+      privileges => ['all'] ,
+    }
     class { 'mysql::backup':
-      backupuser     => 'root',
-      backuppassword => $mysqlRootPassword,
+      backupuser     => 'backupuser',
+      backuppassword => 'backuppwd',
       backupdir      => $backupdir,
       restoredir     => $restore_directory,
     }
@@ -155,6 +155,12 @@ class nsr (
       cloud       => $cloud,
       pubkey_id   => $pubkey_id,
       appVersion  => $appVersion,
+    }->
+    database_user { "${mysqlUser}@localhost":
+      password_hash => mysql_password($mysqlPassword)
+    }->
+    database_grant { "${mysqlUser}@localhost/${userDbName}":
+      privileges => ['all'],
     }
   }
 

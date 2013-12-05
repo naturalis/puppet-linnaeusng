@@ -51,7 +51,7 @@ class nsr::restore (
   exec { 'mysqlrestore.sh':
     command => '/bin/bash /usr/local/sbin/mysqlrestore.sh',
     path => '/usr/local/sbin:/usr/bin:/usr/sbin:/bin',
-    require => Exec['duplicityrestore.sh'],
+    require => [Exec['duplicityrestore.sh']],
     unless => "/usr/bin/test -f /etc/nsr/${appVersion}"
   }
 
