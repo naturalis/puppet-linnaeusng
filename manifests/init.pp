@@ -8,7 +8,7 @@ class nsr (
   $backup              = false,
   $backuphour          = 1,
   $backupminute        = 1,
-  $autorestore         = true,
+  $restore             = false,
   $version             = 'latest',
   $backupdir           = '/tmp/backups',
   $restore_directory   = '/tmp/restore',
@@ -42,18 +42,19 @@ class nsr (
                           '/var/www/nsr/www/admin/templates/cache'],
   $apachegroup         = 'www-data',
   $userDbHost          = 'localhost',
-  $userDbUser          = 'linnaeus_user',
-  $userDbPassword      = undef,
+  $userDbUser,
+  $userDbPassword,
   $userDbName          = 'nsr',
   $userDbPrefix        = 'lng_nsr_',
   $userDbCharset       = 'utf8',
   $adminDbHost         = 'localhost',
-  $adminDbUser         = 'linnaeus_user',
-  $adminDbPassword     = undef,
+  $adminDbUser,
+  $adminDbPassword,
   $adminDbName         = 'nsr',
   $adminDbPrefix       = 'lng_nsr_',
   $adminDbCharset      = 'utf8',
-
+  $mysqlRootPassword,
+  $appVersion          = '1.0.0',
 ) {
 
   include concat::setup
@@ -70,7 +71,9 @@ class nsr (
   class { 'nsr::instances': }
 
   # Create mysql server
-  include mysql::server
+  class { 'mysql::server':
+    config_hash => { 'root_password' => $mysqlRootPassword }
+  }
 
   # Add hostname to /etc/hosts, svn checkout requires a resolvable hostname
   host { 'localhost':
@@ -97,6 +100,11 @@ class nsr (
     group  => 'root',
   }
 
+  file { "/etc/nsr":
+    ensure 	=> 'directory',
+    mode   	=> '0700',
+  }
+
   file { $webdirs:
     ensure 	=> 'directory',
     mode   	=> '0755',
@@ -105,17 +113,19 @@ class nsr (
 
   file { $rwwebdirs:
     ensure 	=> 'directory',
-    mode   	=> '0770',
+    mode   	=> '0660',
     owner	=> root,
     group	=> $apachegroup,
+    recurse     => true,
     require 	=> File[$webdirs],
   }
 
-  if ($backup == true) or ($autorestore == true) {
+  if ($backup == true) or ($restore == true) {
     class { 'mysql::backup':
-      backupuser     => 'backupuser',
-      backuppassword => 'backuppwd',
+      backupuser     => 'root',
+      backuppassword => $mysqlRootPassword,
       backupdir      => $backupdir,
+      restoredir     => $restore_directory,
     }
   }
 
@@ -135,7 +145,7 @@ class nsr (
     }
   }
 
-  if $autorestore == true {
+  if ($restore == true) {
     class { 'nsr::restore':
       version     => $restoreversion,
       bucket      => $bucket,
@@ -144,6 +154,7 @@ class nsr (
       dest_key    => $dest_key,
       cloud       => $cloud,
       pubkey_id   => $pubkey_id,
+      appVersion  => $appVersion,
     }
   }
 

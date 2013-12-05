@@ -9,6 +9,7 @@ class nsr::restore (
   $dest_key = undef,
   $cloud = undef,
   $pubkey_id = undef,
+  $appVersion = undef,
 )
 {
   notify {'Restore enabled':}
@@ -28,28 +29,40 @@ class nsr::restore (
     post_command   => '/usr/local/sbin/filerestore.sh && /usr/local/sbin/mysqlrestore.sh',
   }
 
-  file { "/usr/local/sbin/filerestore.sh":
+ file { "/usr/local/sbin/filerestore.sh":
     content => template('nsr/filerestore.sh.erb'),
-    mode    => '0700',
+    mode => '0700',
+  }
+
+  file { "/etc/nsr/${appVersion}" :
+    ensure  => present,
+    mode    => 0640,
+    content => "Version file, created by puppet for nsr restore jobs",
+    require => Exec['duplicityrestore.sh'],
   }
 
   exec { 'duplicityrestore.sh':
     command => '/bin/bash /usr/local/sbin/duplicityrestore.sh',
     path => '/usr/local/sbin:/usr/bin:/usr/sbin:/bin',
     require => File['/usr/local/sbin/duplicityrestore.sh','/usr/local/sbin/filerestore.sh','/usr/local/sbin/mysqlrestore.sh'],
+    unless => "/usr/bin/test -f /etc/nsr/${appVersion}"
   }
 
   exec { 'mysqlrestore.sh':
     command => '/bin/bash /usr/local/sbin/mysqlrestore.sh',
     path => '/usr/local/sbin:/usr/bin:/usr/sbin:/bin',
     require => Exec['duplicityrestore.sh'],
+    unless => "/usr/bin/test -f /etc/nsr/${appVersion}"
   }
 
   exec { 'filerestore.sh':
     command => '/bin/bash /usr/local/sbin/filerestore.sh',
     path => '/usr/local/sbin:/usr/bin:/usr/sbin:/bin',
     require => Exec['duplicityrestore.sh'],
+    unless => "/usr/bin/test -f /etc/nsr/${appVersion}"
   }
+
+ 
 
 }
 

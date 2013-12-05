@@ -42,9 +42,12 @@ nsr::backupminute: 5
 nsr::backupdir: '/tmp/backups'
 nsr::dest_id: 'provider_id'
 nsr::dest_key: 'provider_key'
+nsr::restore: true
 nsr::bucket: 'linuxbackups'
 nsr::bucketfolder: 'nsr'
+nsr::userDbuser: 'database username'
 nsr::userDbPassword: 'database password'
+nsr::adminDbUser: 'database username'
 nsr::adminDbPassword: 'database password'
 
 ```
