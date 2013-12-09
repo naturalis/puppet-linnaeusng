@@ -83,8 +83,10 @@ class nsr (
   }
   include apache::mod::php
 
+
   # Create all virtual hosts from hiera
-  class { 'nsr::instances': }
+  class { 'nsr::instances': 
+  }
 
   # Add hostname to /etc/hosts, svn checkout requires a resolvable hostname
   host { 'localhost':

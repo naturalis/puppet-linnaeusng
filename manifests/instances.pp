@@ -2,5 +2,4 @@
 class nsr::instances
 {
   create_resources('apache::vhost', hiera('nsr', []))
-
 }
