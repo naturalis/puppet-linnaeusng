@@ -28,8 +28,8 @@ class nsr::backup (
     minute             => $backupminute,
     full_if_older_than => $full_if_older_than,
     remove_older_than  => $remove_older_than,
-    pre_command        => '/usr/local/sbin/mysqlbackup.sh && /usr/local/sbin/filebackup.sh',
-    require            => Class['mysql::backup'],
+    pre_command        => '/usr/local/sbin/filebackup.sh',
+    require            => Class['mysql::server::backup'],
   }
 
   file { "/usr/local/sbin/filebackup.sh":

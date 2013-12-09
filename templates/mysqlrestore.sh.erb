@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# MySQL Restore Script
+#  Dumps mysql databases to a file for another backup tool to pick up.
+#
+#
+##### START CONFIG ###################################################
+
+USER=<%= @mysqlBackupUser -%>
+
+PASS=<%= @mysqlBackupPassword -%>
+
+DIR=<%= @restore_directory -%>
+
+DATABASE=<%= @userDbName -%>
+
+##### STOP CONFIG ####################################################
+PATH=/usr/bin:/usr/sbin:/bin:/sbin
+
+MYSQLDUMPFILE=$(ls -l -rt -m1 ${DIR}/mysql_backup* | tail -n1)
+
+bunzip2 < ${MYSQLDUMPFILE} | mysql -u${USER} -p${PASS} ${DATABASE}
+
+
+
+

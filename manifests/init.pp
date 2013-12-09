@@ -6,8 +6,10 @@
 #
 class nsr (
   $backup              = false,
-  $backuphour          = 1,
-  $backupminute        = 1,
+  $backuphour          = 5,
+  $backupminute        = 5,
+  $backupmysqlhour     = 4,
+  $backupmysqlminute   = 4,
   $restore             = false,
   $version             = 'latest',
   $backupdir           = '/tmp/backups',
@@ -51,18 +53,34 @@ class nsr (
   $adminDbCharset      = 'utf8',
   $mysqlUser           = 'linnaeus_user',
   $mysqlPassword,
+  $mysqlRootPassword   = random_password(20),
+  $mysqlBackupUser     = 'backupuser',
+  $mysqlBackupPassword = random_password(20),
   $appVersion          = '1.0.0',
 ) {
 
+  # include concat and mysql 
   include concat::setup
-  include mysql::php
-  include mysql::server
 
+  class { 'nsr::database':
+    backup              => $backup,
+    backupmysqlhour     => $backupmysqlhour,
+    backupmysqlminute   => $backupmysqlminute,
+    restore             => $restore,
+    backupdir           => $backupdir,
+    userDbName          => $userDbName,
+    mysqlUser           => $mysqlUser,
+    mysqlPassword       => $mysqlPassword,
+    mysqlRootPassword   => $mysqlRootPassword,
+    mysqlBackupUser     => $mysqlBackupUser,
+    mysqlBackupPassword => $mysqlBackupPassword,
+  }
+
+  # install apache
   class { 'apache':
     default_mods => true,
     mpm_module => 'prefork',
   }
-
   include apache::mod::php
 
   # Create all virtual hosts from hiera
@@ -74,10 +92,10 @@ class nsr (
     host_aliases => [ $hostname ],
   }
 
+  # Get data from SVN repo
   package { 'subversion':
     ensure => installed,
   }
-
   vcsrepo { $coderoot:
     ensure   => latest,
     provider => $repotype,
@@ -85,19 +103,7 @@ class nsr (
     require  => [ Package['subversion'],Host['localhost'] ],
   }
 
-  file { 'backupdir':
-    ensure => 'directory',
-    path   => $backupdir,
-    mode   => '0700',
-    owner  => 'root',
-    group  => 'root',
-  }
-
-  file { "/etc/nsr":
-    ensure 	=> 'directory',
-    mode   	=> '0700',
-  }
-
+  # create application specific directories  
   file { $webdirs:
     ensure 	=> 'directory',
     mode   	=> '0755',
@@ -113,22 +119,7 @@ class nsr (
     require 	=> File[$webdirs],
   }
 
-  if ($backup == true) or ($restore == true) {
-    database { $userDbName:
-      ensure         => 'present',
-      charset        => $userDbCharset,
-    }->
-    database_grant { "backupuser@localhost/${userDbName}":
-      privileges => ['all'] ,
-    }
-    class { 'mysql::backup':
-      backupuser     => 'backupuser',
-      backuppassword => 'backuppwd',
-      backupdir      => $backupdir,
-      restoredir     => $restore_directory,
-    }
-  }
-
+  # create backup job
   if $backup == true {
     class { 'nsr::backup':
       backuphour         => $backuphour,
@@ -145,25 +136,24 @@ class nsr (
     }
   }
 
+  # start restore job
   if ($restore == true) {
     class { 'nsr::restore':
-      version     => $restoreversion,
-      bucket      => $bucket,
-      folder      => $bucketfolder,
-      dest_id     => $dest_id,
-      dest_key    => $dest_key,
-      cloud       => $cloud,
-      pubkey_id   => $pubkey_id,
-      appVersion  => $appVersion,
-    }->
-    database_user { "${mysqlUser}@localhost":
-      password_hash => mysql_password($mysqlPassword)
-    }->
-    database_grant { "${mysqlUser}@localhost/${userDbName}":
-      privileges => ['all'],
+      version              => $restoreversion,
+      bucket               => $bucket,
+      folder               => $bucketfolder,
+      dest_id              => $dest_id,
+      dest_key             => $dest_key,
+      cloud                => $cloud,
+      pubkey_id            => $pubkey_id,
+      appVersion           => $appVersion,
+      mysqlBackupUser      => $mysqlBackupUser,
+      mysqlBackupPassword  => $mysqlBackupPassword,
+      userDbName           => $userDbName,
     }
   }
 
+  # create config files based on templates. 
   file { "${coderoot}/configuration/admin/configuration.php":
     content       => template('nsr/adminconfig.erb'),
     mode          => '0640',

@@ -9,9 +9,11 @@ All parameters are read from hiera
 
 Classes
 -------------
-- apache
-- mysql
-- duplicity
+- nsr
+- nsr::database
+- nsr::instances
+- nsr::restore
+- nsr::backup
 
 
 Dependencies
@@ -24,6 +26,8 @@ Examples
 -------------
 Hiera yaml
 dest_id and dest_key are API keys for amazon s3 account
+
+
 ```
 nsr:
   www.nederlandssoortenregister.nl:
@@ -32,6 +36,9 @@ nsr:
       - alias: '/linnaeus_ng'
         path: '/var/www/nsr/www'
     docroot: /var/www/nsr
+    directories:
+      - path: '/var/www/nsr'
+        options: '-Indexes FollowSymLinks MultiViews'
     port: 80
     ssl: no
     serveradmin: aut@naturalis.nl
@@ -45,10 +52,8 @@ nsr::dest_key: 'provider_key'
 nsr::restore: true
 nsr::bucket: 'linuxbackups'
 nsr::bucketfolder: 'nsr'
-nsr::userDbuser: 'database username'
-nsr::userDbPassword: 'database password'
-nsr::adminDbUser: 'database username'
-nsr::adminDbPassword: 'database password'
+nsr::mysqlUser: 'linnaeus_user'
+nsr::mysqlPassword: 'skgh23876SDFSD2342
 
 ```
 Puppet code

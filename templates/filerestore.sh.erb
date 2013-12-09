@@ -1,4 +1,6 @@
 #/bin/sh
-rsync -r /tmp/restore/custom <%= @coderoot -%>/www/app/style/custom
-rsync -r /tmp/restore/project  <%= @coderoot -%>/www/shared/media/project
+rsync -r /tmp/restore/custom/ <%= @coderoot -%>/www/app/style/custom
+rsync -r /tmp/restore/project/  <%= @coderoot -%>/www/shared/media/project
 chown -R root:<%= @apachegroup -%> /var/www
+
+

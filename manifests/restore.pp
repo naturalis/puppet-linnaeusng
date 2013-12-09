@@ -10,6 +10,9 @@ class nsr::restore (
   $cloud = undef,
   $pubkey_id = undef,
   $appVersion = undef,
+  $mysqlBackupUser = undef,
+  $mysqlBackupPassword = undef,
+  $userDbName = undef,
 )
 {
   notify {'Restore enabled':}
@@ -34,6 +37,12 @@ class nsr::restore (
     mode => '0700',
   }
 
+ file { "/usr/local/sbin/mysqlrestore.sh":
+    content => template('nsr/mysqlrestore.sh.erb'),
+    mode => '0700',
+  }
+
+  # create config directory and check version availability
   file { "/etc/nsr/${appVersion}" :
     ensure  => present,
     mode    => 0640,
