@@ -57,6 +57,16 @@ class nsr (
   $mysqlBackupUser     = 'backupuser',
   $mysqlBackupPassword = 'defaultbackuppassword',
   $appVersion          = '1.0.0',
+  $instances           = {'nsr.naturalis.nl' => { 
+                           'serveraliases'   => '*.naturalis.nl',
+                           'aliases'         => [{ 'alias' => '/linnaeus_ng', 'path' => '/var/www/nsr/www' }],
+                           'docroot'         => '/var/www/nsr',
+                           'directories'     => [{ 'path' => '/var/www/nsr', 'options' => '-Indexes FollowSymLinks MultiViews', 'AllowOverride' => 'none' }],
+                           'port'            => 80,
+                           'serveradmin'     => 'webmaster@nsr.naturalis.nl',
+                           'priority'        => 10,
+                          },
+                          },
 ) {
 
   # include concat and mysql 
@@ -86,6 +96,7 @@ class nsr (
 
   # Create all virtual hosts from hiera
   class { 'nsr::instances': 
+    instances => $instances,
   }
 
   # Add hostname to /etc/hosts, svn checkout requires a resolvable hostname

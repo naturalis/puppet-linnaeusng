@@ -1,5 +1,7 @@
 # Create all virtual hosts from hiera
-class nsr::instances
+class nsr::instances (
+    $instances,
+)
 {
-  create_resources('apache::vhost', hiera('nsr', []))
+  create_resources('apache::vhost', $instances)
 }
