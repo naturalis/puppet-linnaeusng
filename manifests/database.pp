@@ -25,32 +25,22 @@ class nsr::database (
     root_password    => $mysqlRootPassword
   }
 
-  # create config directory 
-  file { "/etc/nsr":
-    ensure      => 'directory',
-    mode        => '0700',
-  }
-  file { "/etc/nsr/mysqlRootPassword" :
-    ensure  => present,
-    mode    => 0640,
-    content => $mysqlRootPassword,
+  mysql::db { $userDbName:
+    user           => $mysqlUser,
+    password       => $mysqlPassword,
+    host           => 'localhost',
+    grant          => ['ALL'],
   }
 
+  mysql_grant { "${mysqlbackupuser}@localhost/${userDbName}.*":
+    ensure         => 'present',
+    user           => "${mysqlBackupUser}@localhost",
+    options        => ['GRANT'],
+    privileges     => ['ALL'],
+    table          => '*.*',
+  }
   # create mysql backup and restore scripts
   if ($backup == true) or ($restore == true) {
-    mysql::db { $userDbName:
-      user           => $mysqlUser,
-      password       => $mysqlPassword,
-      host           => 'localhost',
-      grant          => ['ALL'],
-    }
-    mysql_grant { "${mysqlbackupuser}@localhost/${userDbName}.*":
-      ensure         => 'present',
-      user           => "${mysqlBackupUser}@localhost",
-      options        => ['GRANT'],
-      privileges     => ['ALL'],
-      table          => '*.*',
-    }
     class { 'mysql::server::backup':
       backupuser      => $mysqlBackupUser,
       backuppassword  => $mysqlBackupPassword,

@@ -43,6 +43,11 @@ class nsr::restore (
   }
 
   # create config directory and check version availability
+  file { "/etc/nsr":
+    ensure      => 'directory',
+    mode        => '0700',
+  }
+
   file { "/etc/nsr/${appVersion}" :
     ensure  => present,
     mode    => 0640,

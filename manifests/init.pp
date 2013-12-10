@@ -53,9 +53,9 @@ class nsr (
   $adminDbCharset      = 'utf8',
   $mysqlUser           = 'linnaeus_user',
   $mysqlPassword,
-  $mysqlRootPassword   = random_password(20),
+  $mysqlRootPassword   = 'defaultrootpassword',
   $mysqlBackupUser     = 'backupuser',
-  $mysqlBackupPassword = random_password(20),
+  $mysqlBackupPassword = 'defaultbackuppassword',
   $appVersion          = '1.0.0',
 ) {
 
