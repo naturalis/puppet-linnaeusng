@@ -31,7 +31,7 @@ class nsr::database (
     host           => 'localhost',
     grant          => ['ALL'],
   }
-
+  
   mysql_grant { "${mysqlbackupuser}@localhost/${userDbName}.*":
     ensure         => 'present',
     user           => "${mysqlBackupUser}@localhost",
@@ -39,6 +39,7 @@ class nsr::database (
     privileges     => ['ALL'],
     table          => '*.*',
   }
+
   # create mysql backup and restore scripts
   if ($backup == true) or ($restore == true) {
     class { 'mysql::server::backup':

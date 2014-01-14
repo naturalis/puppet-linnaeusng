@@ -15,8 +15,6 @@ class nsr::restore (
   $userDbName = undef,
 )
 {
-  notify {'Restore enabled':}
-
   package { 'unzip':
     ensure => present,
   }

@@ -54,6 +54,7 @@ nsr::bucket: 'linuxbackups'
 nsr::bucketfolder: 'nsr'
 nsr::mysqlUser: 'linnaeus_user'
 nsr::mysqlPassword: 'skgh23876SDFSD2342
+nsr::configuredb: true
 
 ```
 Puppet code
@@ -67,6 +68,7 @@ Working webserver with mysql, restored from duplicity, code from subversion and 
 Limitations
 -------------
 This module has been built on and tested against Puppet 3 and higher.
+mysql_grant will be reapplied every puppet run, this can be disabled by setting the variable : configuredb to false. After setting the variable to false the database class for creation and configuring will not be included anymore. 
 
 The module has been tested on:
 - Ubuntu 12.04LTS

@@ -14,7 +14,6 @@ class nsr::backup (
   $remove_older_than = undef,
 )
 {
-  notify {'Backup enabled':}
 
   duplicity { 'backup':
     directory          => $backupdir,

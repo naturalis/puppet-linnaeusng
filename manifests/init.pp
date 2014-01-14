@@ -5,6 +5,7 @@
 # Author : Hugo van Duijn
 #
 class nsr (
+  $configuredb         = true,
   $backup              = false,
   $backuphour          = 5,
   $backupminute        = 5,
@@ -72,18 +73,20 @@ class nsr (
   # include concat and mysql 
   include concat::setup
 
-  class { 'nsr::database':
-    backup              => $backup,
-    backupmysqlhour     => $backupmysqlhour,
-    backupmysqlminute   => $backupmysqlminute,
-    restore             => $restore,
-    backupdir           => $backupdir,
-    userDbName          => $userDbName,
-    mysqlUser           => $mysqlUser,
-    mysqlPassword       => $mysqlPassword,
-    mysqlRootPassword   => $mysqlRootPassword,
-    mysqlBackupUser     => $mysqlBackupUser,
-    mysqlBackupPassword => $mysqlBackupPassword,
+  if ($configuredb == true) {
+    class { 'nsr::database':
+      backup              => $backup,
+      backupmysqlhour     => $backupmysqlhour,
+      backupmysqlminute   => $backupmysqlminute,
+      restore             => $restore,
+      backupdir           => $backupdir,
+      userDbName          => $userDbName,
+      mysqlUser           => $mysqlUser,
+      mysqlPassword       => $mysqlPassword,
+      mysqlRootPassword   => $mysqlRootPassword,
+      mysqlBackupUser     => $mysqlBackupUser,
+      mysqlBackupPassword => $mysqlBackupPassword,
+    }
   }
 
   # install apache
