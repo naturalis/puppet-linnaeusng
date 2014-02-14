@@ -46,9 +46,11 @@ class nsr::database (
       backupuser      => $mysqlBackupUser,
       backuppassword  => $mysqlBackupPassword,
       backupdir       => $backupdir,
-      backupdatabases => [$userDbName], 
+      backupdatabases => [$userDbName],
       backuprotate    => 1,
       time            => [$backupmysqlhour,$backupmysqlminute],
     }
   }
+
+
 }
