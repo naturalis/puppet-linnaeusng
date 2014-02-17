@@ -81,6 +81,11 @@ Result
 -------------
 Working webserver with mysql, restored from duplicity, code from subversion and config files based on templates. with daily duplicity backup.
 
+Mysql and The following directories will be included in the backups.
+/var/www/linnaeusng/www/app/style/custom 
+/var/www/linnaeusng/www/shared/media/project
+
+
 Limitations
 -------------
 This module has been built on and tested against Puppet 3 and higher.
