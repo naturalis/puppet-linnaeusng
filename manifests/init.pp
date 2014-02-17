@@ -171,13 +171,7 @@ class linnaeusng (
   }
 
   # create extra users
-  if $extra_users_hash == 'hiera_based' {
-    create_resources('base::users', hiera('extrausers',{}))
-  }
-  elsif $extra_users_hash == 'none' {
-    notify {'no users created':}
-  }
-  else {
+  if $extra_users_hash {
     create_resources('base::users', parseyaml($extra_users_hash))
   }
 

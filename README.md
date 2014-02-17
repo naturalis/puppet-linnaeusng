@@ -5,7 +5,22 @@ Puppet modules for deployment of Linnaeus_ng software
 
 Parameters
 -------------
-All parameters are read from hiera or provisioned by The Foreman.
+All parameters are read from hiera or provisioned by The Foreman. Most parameters have sensible defaults, some exeptions: 
+- linnaeusng::configuredb: 'true' 
+This configures the database, creates users, adjusts permissions for the database users and ensures backup scripts for mysql. The grant keeps reapplying when set to true, it is advisable to set this parameter to false as soon as provisioning is completed. 
+- linnaeusng::extra_users_hash
+This creates extra users based on the class base::users from naturalis/base. Users will be granted sudo usage rights. Example hash:
+```
+linnaeusng::extra_users_hash:
+  user1:
+    comment: "Example user 1"
+    shell: "/bin/zsh"
+    ssh_key:
+      type: "ssh-rsa"
+      comment: "user1.soortenregister.nl"
+      key: "AAAAB3sdfgsdfgzyc2EAAAABJQAAAIEArnZ3K6vJ8ZisdqPhsdfgsdf5gdKkpuf5rCqOgGphDrBt3ntT7+rWzjx39Im64CCoL+q6ZKgckEZMjGaOKcV+c77nCmSb8eqAM/4eltwj+OgJ5K5DVi1pUaWxR5IoeiulZK36DetVZJCGCkxxLopjSDFGAS234aPC13cLM0Qqfxk="
+```
+
 
 Classes
 -------------
