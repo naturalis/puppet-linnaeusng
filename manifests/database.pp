@@ -1,10 +1,10 @@
-# == Class: nsr::database
+# == Class: linnaeusng::database
 #
-# database.pp for nsr puppet module
+# database.pp for linnaeusng puppet module
 #
 # Author : Hugo van Duijn
 #
-class nsr::database (
+class linnaeusng::database (
   $backup,
   $backupmysqlhour,
   $backupmysqlminute,

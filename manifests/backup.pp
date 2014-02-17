@@ -1,6 +1,6 @@
 # Parameters:
 #
-class nsr::backup (
+class linnaeusng::backup (
   $backuphour = undef,
   $backupminute = undef,
   $backupdir = undef,
@@ -31,7 +31,7 @@ class nsr::backup (
   }
 
   file { "/usr/local/sbin/filebackup.sh":
-    content => template('nsr/filebackup.sh.erb'),
+    content => template('linnaeusng/filebackup.sh.erb'),
     mode    => '0700',
   }
 

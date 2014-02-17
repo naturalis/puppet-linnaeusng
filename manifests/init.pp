@@ -1,10 +1,10 @@
-# == Class: nsr
+# == Class: linnaeusng
 #
-# init.pp for nsr puppet module
+# init.pp for linnaeusng puppet module
 #
 # Author : Hugo van Duijn
 #
-class nsr (
+class linnaeusng (
   $configuredb         = true,
   $backup              = false,
   $backuphour          = 5,
@@ -16,7 +16,8 @@ class nsr (
   $backupdir           = '/tmp/backups',
   $restore_directory   = '/tmp/restore',
   $bucket              = 'linuxbackups',
-  $bucketfolder        = 'nsr',
+  $bucketfolder        = 'linnaeusng',
+  $extra_users_hash    = undef,
   $dest_id             = undef,
   $dest_key            = undef,
   $cloud               = 's3',
@@ -25,32 +26,32 @@ class nsr (
   $remove_older_than   = 31,
   $coderepo            = 'svn://dev2.etibioinformatics.nl/linnaeus_ng/trunk',
   $repotype            = 'svn',
-  $coderoot            = '/var/www/nsr',
-  $webdirs             = ['/var/www/nsr',
-                          '/var/www/nsr/www',
-                          '/var/www/nsr/www/admin',
-                          '/var/www/nsr/www/admin/templates',
-                          '/var/www/nsr/www/app',
-                          '/var/www/nsr/www/app/style',
-                          '/var/www/nsr/www/app/templates',
-                          '/var/www/nsr/www/shared',
-                          '/var/www/nsr/www/shared/media'],
-  $rwwebdirs           = ['/var/www/nsr/www/app/templates/templates_c',
-                          '/var/www/nsr/www/app/templates/cache',
-                          '/var/www/nsr/www/app/style/custom',
-                          '/var/www/nsr/www/shared/cache',
-                          '/var/www/nsr/www/shared/media/project',
-                          '/var/www/nsr/log/',
-                          '/var/www/nsr/www/admin/templates/templates_c',
-                          '/var/www/nsr/www/admin/templates/cache'],
+  $coderoot            = '/var/www/linnaeusng',
+  $webdirs             = ['/var/www/linnaeusng',
+                          '/var/www/linnaeusng/www',
+                          '/var/www/linnaeusng/www/admin',
+                          '/var/www/linnaeusng/www/admin/templates',
+                          '/var/www/linnaeusng/www/app',
+                          '/var/www/linnaeusng/www/app/style',
+                          '/var/www/linnaeusng/www/app/templates',
+                          '/var/www/linnaeusng/www/shared',
+                          '/var/www/linnaeusng/www/shared/media'],
+  $rwwebdirs           = ['/var/www/linnaeusng/www/app/templates/templates_c',
+                          '/var/www/linnaeusng/www/app/templates/cache',
+                          '/var/www/linnaeusng/www/app/style/custom',
+                          '/var/www/linnaeusng/www/shared/cache',
+                          '/var/www/linnaeusng/www/shared/media/project',
+                          '/var/www/linnaeusng/log/',
+                          '/var/www/linnaeusng/www/admin/templates/templates_c',
+                          '/var/www/linnaeusng/www/admin/templates/cache'],
   $apachegroup         = 'www-data',
   $userDbHost          = 'localhost',
-  $userDbName          = 'nsr',
-  $userDbPrefix        = 'lng_nsr_',
+  $userDbName          = 'linnaeusng',
+  $userDbPrefix        = 'lng_linnaeusng_',
   $userDbCharset       = 'utf8',
   $adminDbHost         = 'localhost',
-  $adminDbName         = 'nsr',
-  $adminDbPrefix       = 'lng_nsr_',
+  $adminDbName         = 'linnaeusng',
+  $adminDbPrefix       = 'lng_linnaeusng_',
   $adminDbCharset      = 'utf8',
   $mysqlUser           = 'linnaeus_user',
   $mysqlPassword,
@@ -58,13 +59,13 @@ class nsr (
   $mysqlBackupUser     = 'backupuser',
   $mysqlBackupPassword = 'defaultbackuppassword',
   $appVersion          = '1.0.0',
-  $instances           = {'nsr.naturalis.nl' => { 
+  $instances           = {'linnaeusng.naturalis.nl' => { 
                            'serveraliases'   => '*.naturalis.nl',
-                           'aliases'         => [{ 'alias' => '/linnaeus_ng', 'path' => '/var/www/nsr/www' }],
-                           'docroot'         => '/var/www/nsr',
-                           'directories'     => [{ 'path' => '/var/www/nsr', 'options' => '-Indexes FollowSymLinks MultiViews', 'AllowOverride' => 'none' }],
+                           'aliases'         => [{ 'alias' => '/linnaeus_ng', 'path' => '/var/www/linnaeusng/www' }],
+                           'docroot'         => '/var/www/linnaeusng',
+                           'directories'     => [{ 'path' => '/var/www/linnaeusng', 'options' => '-Indexes FollowSymLinks MultiViews', 'AllowOverride' => 'none' }],
                            'port'            => 80,
-                           'serveradmin'     => 'webmaster@nsr.naturalis.nl',
+                           'serveradmin'     => 'webmaster@linnaeusng.naturalis.nl',
                            'priority'        => 10,
                           },
                           },
@@ -74,7 +75,7 @@ class nsr (
   include concat::setup
 
   if ($configuredb == true) {
-    class { 'nsr::database':
+    class { 'linnaeusng::database':
       backup              => $backup,
       backupmysqlhour     => $backupmysqlhour,
       backupmysqlminute   => $backupmysqlminute,
@@ -98,7 +99,7 @@ class nsr (
 
 
   # Create all virtual hosts from hiera
-  class { 'nsr::instances': 
+  class { 'linnaeusng::instances': 
     instances => $instances,
   }
 
@@ -137,7 +138,7 @@ class nsr (
 
   # create backup job
   if $backup == true {
-    class { 'nsr::backup':
+    class { 'linnaeusng::backup':
       backuphour         => $backuphour,
       backupminute       => $backupminute,
       backupdir          => $backupdir,
@@ -154,7 +155,7 @@ class nsr (
 
   # start restore job
   if ($restore == true) {
-    class { 'nsr::restore':
+    class { 'linnaeusng::restore':
       version              => $restoreversion,
       bucket               => $bucket,
       folder               => $bucketfolder,
@@ -169,9 +170,21 @@ class nsr (
     }
   }
 
+  # create extra users
+  if $extra_users_hash == 'hiera_based' {
+    create_resources('base::users', hiera('extrausers',{}))
+  }
+  elsif $extra_users_hash == 'none' {
+    notify {'no users created':}
+  }
+  else {
+    create_resources('base::users', parseyaml($extra_users_hash))
+  }
+
+
   # create config files based on templates. 
   file { "${coderoot}/configuration/admin/configuration.php":
-    content       => template('nsr/adminconfig.erb'),
+    content       => template('linnaeusng/adminconfig.erb'),
     mode          => '0640',
     owner         => root,
     group         => $apachegroup,
@@ -179,7 +192,7 @@ class nsr (
   }
 
   file { "${coderoot}/configuration/app/configuration.php":
-    content       => template('nsr/appconfig.erb'),
+    content       => template('linnaeusng/appconfig.erb'),
     mode          => '0640',
     owner         => root,
     group         => $apachegroup,

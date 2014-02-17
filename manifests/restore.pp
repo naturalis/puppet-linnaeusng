@@ -1,6 +1,6 @@
 # Parameters:
 #
-class nsr::restore (
+class linnaeusng::restore (
   $version = undef,
   $restore_directory = '/tmp/restore/',
   $bucket = undef,
@@ -31,25 +31,25 @@ class nsr::restore (
   }
 
  file { "/usr/local/sbin/filerestore.sh":
-    content => template('nsr/filerestore.sh.erb'),
+    content => template('linnaeusng/filerestore.sh.erb'),
     mode => '0700',
   }
 
  file { "/usr/local/sbin/mysqlrestore.sh":
-    content => template('nsr/mysqlrestore.sh.erb'),
+    content => template('linnaeusng/mysqlrestore.sh.erb'),
     mode => '0700',
   }
 
   # create config directory and check version availability
-  file { "/etc/nsr":
+  file { "/etc/linnaeusng":
     ensure      => 'directory',
     mode        => '0700',
   }
 
-  file { "/etc/nsr/${appVersion}" :
+  file { "/etc/linnaeusng/${appVersion}" :
     ensure  => present,
     mode    => 0640,
-    content => "Version file, created by puppet for nsr restore jobs",
+    content => "Version file, created by puppet for linnaeusng restore jobs",
     require => Exec['duplicityrestore.sh'],
   }
 
@@ -57,21 +57,21 @@ class nsr::restore (
     command => '/bin/bash /usr/local/sbin/duplicityrestore.sh',
     path => '/usr/local/sbin:/usr/bin:/usr/sbin:/bin',
     require => File['/usr/local/sbin/duplicityrestore.sh','/usr/local/sbin/filerestore.sh','/usr/local/sbin/mysqlrestore.sh'],
-    unless => "/usr/bin/test -f /etc/nsr/${appVersion}"
+    unless => "/usr/bin/test -f /etc/linnaeusng/${appVersion}"
   }
 
   exec { 'mysqlrestore.sh':
     command => '/bin/bash /usr/local/sbin/mysqlrestore.sh',
     path => '/usr/local/sbin:/usr/bin:/usr/sbin:/bin',
     require => [Exec['duplicityrestore.sh']],
-    unless => "/usr/bin/test -f /etc/nsr/${appVersion}"
+    unless => "/usr/bin/test -f /etc/linnaeusng/${appVersion}"
   }
 
   exec { 'filerestore.sh':
     command => '/bin/bash /usr/local/sbin/filerestore.sh',
     path => '/usr/local/sbin:/usr/bin:/usr/sbin:/bin',
     require => Exec['duplicityrestore.sh'],
-    unless => "/usr/bin/test -f /etc/nsr/${appVersion}"
+    unless => "/usr/bin/test -f /etc/linnaeusng/${appVersion}"
   }
 
  

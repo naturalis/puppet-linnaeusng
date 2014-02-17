@@ -1,25 +1,26 @@
-puppet-nsr
+puppet-linnaeusng
 ===================
 
-Puppet modules for deployment of Nederlands Soortenregister 
+Puppet modules for deployment of Linnaeus_ng software
 
 Parameters
 -------------
-All parameters are read from hiera
+All parameters are read from hiera or provisioned by The Foreman.
 
 Classes
 -------------
-- nsr
-- nsr::database
-- nsr::instances
-- nsr::restore
-- nsr::backup
+- linnaeusng
+- linnaeusng::database
+- linnaeusng::instances
+- linnaeusng::restore
+- linnaeusng::backup
 
 
 Dependencies
 -------------
-- vcsrepo
-- apache2 module from puppetlabs
+- naturalis/base
+- puppetlabs/vcsrepo
+- puppetlabs/apache2
 - Jimdo/puppet-duplicity
 
 Examples
@@ -29,37 +30,37 @@ dest_id and dest_key are API keys for amazon s3 account
 
 
 ```
-nsr:
-  www.nederlandssoortenregister.nl:
-    serveraliases: 'nederlandssoortenregister.nl'
+linnaeusng:
+  www.linnaeusng.nl:
+    serveraliases: 'linnaeusng.nl'
     aliases:
       - alias: '/linnaeus_ng'
-        path: '/var/www/nsr/www'
-    docroot: /var/www/nsr
+        path: '/var/www/linnaeusng/www'
+    docroot: /var/www/linnaeusng
     directories:
-      - path: '/var/www/nsr'
+      - path: '/var/www/linnaeusng'
         options: '-Indexes FollowSymLinks MultiViews'
     port: 80
     ssl: no
     serveradmin: aut@naturalis.nl
     priority: 10
-nsr::backup: true
-nsr::backuphour: 5
-nsr::backupminute: 5
-nsr::backupdir: '/tmp/backups'
-nsr::dest_id: 'provider_id'
-nsr::dest_key: 'provider_key'
-nsr::restore: true
-nsr::bucket: 'linuxbackups'
-nsr::bucketfolder: 'nsr'
-nsr::mysqlUser: 'linnaeus_user'
-nsr::mysqlPassword: 'skgh23876SDFSD2342
-nsr::configuredb: true
+linnaeusng::backup: true
+linnaeusng::backuphour: 5
+linnaeusng::backupminute: 5
+linnaeusng::backupdir: '/tmp/backups'
+linnaeusng::dest_id: 'provider_id'
+linnaeusng::dest_key: 'provider_key'
+linnaeusng::restore: true
+linnaeusng::bucket: 'linuxbackups'
+linnaeusng::bucketfolder: 'linnaeusng'
+linnaeusng::mysqlUser: 'linnaeus_user'
+linnaeusng::mysqlPassword: 'skgh23876SDFSD2342
+linnaeusng::configuredb: true
 
 ```
 Puppet code
 ```
-class { nsr: }
+class { linnaeusng: }
 ```
 Result
 -------------

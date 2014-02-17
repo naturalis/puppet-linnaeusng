@@ -1,5 +1,5 @@
 # Create all virtual hosts from hiera
-class nsr::instances (
+class linnaeusng::instances (
     $instances,
 )
 {
