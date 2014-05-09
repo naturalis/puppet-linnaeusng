@@ -6,26 +6,10 @@
 #
 class linnaeusng (
   $configuredb         = true,
-  $backup              = false,
-  $backuphour          = 5,
-  $backupminute        = 5,
-  $backupmysqlhour     = 4,
-  $backupmysqlminute   = 4,
-  $restore             = false,
-  $version             = 'latest',
-  $backupdir           = '/tmp/backups',
-  $restore_directory   = '/tmp/restore',
-  $bucket              = 'linuxbackups',
-  $bucketfolder        = 'linnaeusng',
   $extra_users_hash    = undef,
-  $dest_id             = undef,
-  $dest_key            = undef,
-  $cloud               = 's3',
-  $pubkey_id           = undef,
-  $full_if_older_than  = 30,
-  $remove_older_than   = 31,
   $coderepo            = 'svn://dev2.etibioinformatics.nl/linnaeus_ng/trunk',
   $repotype            = 'svn',
+  $repoversion         = 'present',
   $coderoot            = '/var/www/linnaeusng',
   $webdirs             = ['/var/www/linnaeusng',
                           '/var/www/linnaeusng/www',
@@ -56,8 +40,6 @@ class linnaeusng (
   $mysqlUser           = 'linnaeus_user',
   $mysqlPassword,
   $mysqlRootPassword   = 'defaultrootpassword',
-  $mysqlBackupUser     = 'backupuser',
-  $mysqlBackupPassword = 'defaultbackuppassword',
   $appVersion          = '1.0.0',
   $instances           = {'linnaeusng.naturalis.nl' => { 
                            'serveraliases'   => '*.naturalis.nl',
@@ -76,17 +58,10 @@ class linnaeusng (
 
   if ($configuredb == true) {
     class { 'linnaeusng::database':
-      backup              => $backup,
-      backupmysqlhour     => $backupmysqlhour,
-      backupmysqlminute   => $backupmysqlminute,
-      restore             => $restore,
-      backupdir           => $backupdir,
       userDbName          => $userDbName,
       mysqlUser           => $mysqlUser,
       mysqlPassword       => $mysqlPassword,
       mysqlRootPassword   => $mysqlRootPassword,
-      mysqlBackupUser     => $mysqlBackupUser,
-      mysqlBackupPassword => $mysqlBackupPassword,
     }
   }
 
@@ -113,8 +88,9 @@ class linnaeusng (
   package { 'subversion':
     ensure => installed,
   }
+
   vcsrepo { $coderoot:
-    ensure   => latest,
+    ensure   => $repoversion,
     provider => $repotype,
     source   => $coderepo,
     require  => [ Package['subversion'],Host['localhost'] ],
@@ -122,53 +98,20 @@ class linnaeusng (
 
   # create application specific directories  
   file { $webdirs:
-    ensure 	=> 'directory',
-    mode   	=> '0755',
-    require 	=> Vcsrepo[$coderoot],
+    ensure      => 'directory',
+    mode        => '0755',
+    require     => Vcsrepo[$coderoot],
   }
 
   file { $rwwebdirs:
-    ensure 	=> 'directory',
-    mode   	=> '0660',
-    owner	=> root,
-    group	=> $apachegroup,
+    ensure      => 'directory',
+    mode        => '0660',
+    owner       => root,
+    group       => $apachegroup,
     recurse     => true,
-    require 	=> File[$webdirs],
+    require     => File[$webdirs],
   }
 
-  # create backup job
-  if $backup == true {
-    class { 'linnaeusng::backup':
-      backuphour         => $backuphour,
-      backupminute       => $backupminute,
-      backupdir          => $backupdir,
-      bucket             => $bucket,
-      folder             => $bucketfolder,
-      dest_id            => $dest_id,
-      dest_key           => $dest_key,
-      cloud              => $cloud,
-      pubkey_id          => $pubkey_id,
-      full_if_older_than => $full_if_older_than,
-      remove_older_than  => $remove_older_than,
-    }
-  }
-
-  # start restore job
-  if ($restore == true) {
-    class { 'linnaeusng::restore':
-      version              => $restoreversion,
-      bucket               => $bucket,
-      folder               => $bucketfolder,
-      dest_id              => $dest_id,
-      dest_key             => $dest_key,
-      cloud                => $cloud,
-      pubkey_id            => $pubkey_id,
-      appVersion           => $appVersion,
-      mysqlBackupUser      => $mysqlBackupUser,
-      mysqlBackupPassword  => $mysqlBackupPassword,
-      userDbName           => $userDbName,
-    }
-  }
 
   # create extra users
   if $extra_users_hash {
@@ -182,7 +125,7 @@ class linnaeusng (
     mode          => '0640',
     owner         => root,
     group         => $apachegroup,
-    require       => Vcsrepo[$coderoot],
+    require       => File[$webdirs],
   }
 
   file { "${coderoot}/configuration/app/configuration.php":
@@ -190,6 +133,6 @@ class linnaeusng (
     mode          => '0640',
     owner         => root,
     group         => $apachegroup,
-    require       => Vcsrepo[$coderoot],
+    require       => File[$webdirs],
   }
 }
