@@ -53,6 +53,7 @@ linnaeusng:
     docroot: /var/www/linnaeusng
     directories:
       - path: '/var/www/linnaeusng'
+        allow_override: All
         options: '-Indexes FollowSymLinks MultiViews'
     port: 80
     ssl: no
