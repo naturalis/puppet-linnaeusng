@@ -12,6 +12,12 @@ This configures the database, creates users, adjusts permissions for the databas
 This creates extra users based on the class base::users from naturalis/base. Users will be granted sudo usage rights. Example hash:
 - linnaeusng::repoversion
 Manages the version of repocheckout, present = default and advised for production environments. latest may be usefull for development environments. 
+- linnaeusng::userepo
+Userepo defaults to false, checkouts will not take place. 
+- linnaeusng::reposshauth
+Use SSH authentication for the git repository, if set to true then the contents of repokey must filled with the private key which has access to the repository
+- linnaeusng::repokey
+Fill with the private key when ssh authentication is needed for the repository
 
 ```
 linnaeusng::extra_users_hash:
@@ -62,7 +68,12 @@ linnaeusng:
 linnaeusng::mysqlUser: 'linnaeus_user'
 linnaeusng::mysqlPassword: 'skgh23876SDFSD2342
 linnaeusng::configuredb: true
-linnaeusng::repoversion: latest 
+linnaeusng::repoversion: present
+linnaeusng::coderepo: 'git@github.com:naturalis/linnaeus_ng.git',
+linnaeusng::repotype: 'git',
+linnaeusng::repokey: '-----BEGIN RSA PRIVATE KEY-----xxxxxxxsxxxxxxxx-----END RSA PRIVATE KEY-----',
+linnaeusng::reposshauth: true,
+linnaeusng::userepo: true,
 
 ```
 Puppet code
@@ -71,7 +82,7 @@ class { linnaeusng: }
 ```
 Result
 -------------
-Working webserver with mysql, code from subversion and config files based on templates.
+Working webserver with mysql, code from github and config files based on templates.
 
 
 Limitations

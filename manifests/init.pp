@@ -7,9 +7,12 @@
 class linnaeusng (
   $configuredb         = true,
   $extra_users_hash    = undef,
-  $coderepo            = 'svn://dev2.etibioinformatics.nl/linnaeus_ng/trunk',
-  $repotype            = 'svn',
+  $coderepo            = 'git@github.com:naturalis/linnaeus_ng.git',
+  $repotype            = 'git',
   $repoversion         = 'present',
+  $repokey             = undef,
+  $reposshauth         = true,
+  $userepo             = false,
   $coderoot            = '/var/www/linnaeusng',
   $webdirs             = ['/var/www/linnaeusng',
                           '/var/www/linnaeusng/www',
@@ -38,7 +41,7 @@ class linnaeusng (
   $adminDbPrefix       = 'lng_linnaeusng_',
   $adminDbCharset      = 'utf8',
   $mysqlUser           = 'linnaeus_user',
-  $mysqlPassword,
+  $mysqlPassword       = 'mysqlpassword',
   $mysqlRootPassword   = 'defaultrootpassword',
   $appVersion          = '1.0.0',
   $instances           = {'linnaeusng.naturalis.nl' => { 
@@ -85,23 +88,45 @@ class linnaeusng (
     host_aliases => [ $hostname ],
   }
 
-  # Get data from SVN repo
-  package { 'subversion':
+  # Get data from git repo
+  package { 'git':
     ensure => installed,
   }
 
-  vcsrepo { $coderoot:
-    ensure   => $repoversion,
-    provider => $repotype,
-    source   => $coderepo,
-    require  => [ Package['subversion'],Host['localhost'] ],
+  if ( $userepo == true ) {
+
+  if ( $reposshauth == false ) {
+    vcsrepo { $coderoot:
+      ensure   => $repoversion,
+      provider => $repotype,
+      source   => $coderepo,
+      require  => [ Package['git'],Host['localhost']],
+    }
+  } else {
+    file { '/root/.ssh':
+      ensure  => directory,
+    }->
+    file { '/root/.ssh/id_rsa':
+      ensure  => "present",
+      content => $repokey,
+      mode    => 600,
+    }->
+    vcsrepo { $coderoot:
+      ensure   => $repoversion,
+      provider => $repotype,
+      source   => $coderepo,
+      user     => 'root',
+      force    => true,
+      require  => [ Package['git'],Host['localhost']],
+    }
+  }
   }
 
   # create application specific directories  
   file { $webdirs:
     ensure      => 'directory',
     mode        => '0755',
-    require     => Vcsrepo[$coderoot],
+#    require     => Vcsrepo[$coderoot],
   }
 
   file { $rwwebdirs:
