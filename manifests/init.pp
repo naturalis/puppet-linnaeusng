@@ -48,7 +48,7 @@ class linnaeusng (
                            'serveraliases'   => '*.naturalis.nl',
                            'aliases'         => [{ 'alias' => '/linnaeus_ng', 'path' => '/var/www/linnaeusng/www' }],
                            'docroot'         => '/var/www/linnaeusng',
-                           'directories'     => [{ 'path' => '/var/www/linnaeusng', 'options' => '-Indexes FollowSymLinks MultiViews', 'allow_override' => 'All' }],
+                           'directories'     => [{ 'path' => '/var/www/linnaeusng', 'options' => '-Indexes +FollowSymLinks +MultiViews', 'allow_override' => 'All' }],
                            'port'            => 80,
                            'serveradmin'     => 'webmaster@linnaeusng.naturalis.nl',
                            'priority'        => 10,
