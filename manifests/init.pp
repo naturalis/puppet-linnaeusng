@@ -6,13 +6,12 @@
 #
 class linnaeusng (
   $configuredb         = true,
-  $extra_users_hash    = undef,
   $coderepo            = 'git@github.com:naturalis/linnaeus_ng.git',
   $repotype            = 'git',
   $repoversion         = 'present',
   $repokey             = undef,
+  $repokeyname         = 'githubkey',
   $reposshauth         = true,
-  $userepo             = false,
   $coderoot            = '/var/www/linnaeusng',
   $webdirs             = ['/var/www/linnaeusng',
                           '/var/www/linnaeusng/www',
@@ -34,11 +33,11 @@ class linnaeusng (
   $apachegroup         = 'www-data',
   $userDbHost          = 'localhost',
   $userDbName          = 'linnaeusng',
-  $userDbPrefix        = 'lng_linnaeusng_',
+  $userDbPrefix        = undef,
   $userDbCharset       = 'utf8',
   $adminDbHost         = 'localhost',
   $adminDbName         = 'linnaeusng',
-  $adminDbPrefix       = 'lng_linnaeusng_',
+  $adminDbPrefix       = undef,
   $adminDbCharset      = 'utf8',
   $mysqlUser           = 'linnaeus_user',
   $mysqlPassword       = 'mysqlpassword',
@@ -82,51 +81,21 @@ class linnaeusng (
     instances => $instances,
   }
 
-  # Add hostname to /etc/hosts, svn checkout requires a resolvable hostname
-  host { 'localhost':
-    ip => '127.0.0.1',
-    host_aliases => [ $hostname ],
-  }
-
-  # Get data from git repo
-  package { 'git':
-    ensure => installed,
-  }
-
-  if ( $userepo == true ) {
-
-  if ( $reposshauth == false ) {
-    vcsrepo { $coderoot:
-      ensure   => $repoversion,
-      provider => $repotype,
-      source   => $coderepo,
-      require  => [ Package['git'],Host['localhost']],
-    }
-  } else {
-    file { '/root/.ssh':
-      ensure  => directory,
-    }->
-    file { '/root/.ssh/id_rsa':
-      ensure  => "present",
-      content => $repokey,
-      mode    => 600,
-    }->
-    vcsrepo { $coderoot:
-      ensure   => $repoversion,
-      provider => $repotype,
-      source   => $coderepo,
-      user     => 'root',
-      force    => true,
-      require  => [ Package['git'],Host['localhost']],
-    }
-  }
+  class { 'linnaeusng::repo':
+    repolocation  => $coderoot,
+    coderepo      => $coderepo,
+    repoversion   => $repoversion,
+    reposshauth   => $reposshauth,
+    repokey       => $repokey,
+    repokeyname   => $repokeyname,
+    repotype      => $repotype,
   }
 
   # create application specific directories  
   file { $webdirs:
     ensure      => 'directory',
     mode        => '0755',
-#    require     => Vcsrepo[$coderoot],
+    require     => Class['linnaeusng::repo'],
   }
 
   file { $rwwebdirs:
@@ -137,13 +106,6 @@ class linnaeusng (
     recurse     => true,
     require     => File[$webdirs],
   }
-
-
-  # create extra users
-  if $extra_users_hash {
-    create_resources('base::users', parseyaml($extra_users_hash))
-  }
-
 
   # create config files based on templates. 
   file { "${coderoot}/configuration/admin/configuration.php":

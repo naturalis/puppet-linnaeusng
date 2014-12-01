@@ -8,27 +8,13 @@ Parameters
 All parameters are read from hiera or provisioned by The Foreman. Most parameters have sensible defaults, some exeptions: 
 - linnaeusng::configuredb: 'true' 
 This configures the database, creates users, adjusts permissions for the database users.
-- linnaeusng::extra_users_hash
-This creates extra users based on the class base::users from naturalis/base. Users will be granted sudo usage rights. Example hash:
 - linnaeusng::repoversion
 Manages the version of repocheckout, present = default and advised for production environments. latest may be usefull for development environments. 
-- linnaeusng::userepo
-Userepo defaults to false, checkouts will not take place. 
 - linnaeusng::reposshauth
 Use SSH authentication for the git repository, if set to true then the contents of repokey must filled with the private key which has access to the repository
 - linnaeusng::repokey
 Fill with the private key when ssh authentication is needed for the repository
 
-```
-linnaeusng::extra_users_hash:
-  user1:
-    comment: "Example user 1"
-    shell: "/bin/zsh"
-    ssh_key:
-      type: "ssh-rsa"
-      comment: "user1.soortenregister.nl"
-      key: "AAAAB3sdfgsdfgzyc2EAAAABJQAAAIEArnZ3K6vJ8ZisdqPhsdfgsdf5gdKkpuf5rCqOgGphDrBt3ntT7+rWzjx39Im64CCoL+q6ZKgckEZMjGaOKcV+c77nCmSb8eqAM/4eltwj+OgJ5K5DVi1pUaWxR5IoeiulZK36DetVZJCGCkxxLopjSDFGAS234aPC13cLM0Qqfxk="
-```
 
 
 Classes
@@ -36,7 +22,7 @@ Classes
 - linnaeusng
 - linnaeusng::database
 - linnaeusng::instances
-
+- linnaeusng::repo
 
 Dependencies
 -------------
@@ -73,7 +59,7 @@ linnaeusng::coderepo: 'git@github.com:naturalis/linnaeus_ng.git',
 linnaeusng::repotype: 'git',
 linnaeusng::repokey: '-----BEGIN RSA PRIVATE KEY-----xxxxxxxsxxxxxxxx-----END RSA PRIVATE KEY-----',
 linnaeusng::reposshauth: true,
-linnaeusng::userepo: true,
+
 
 ```
 Puppet code
@@ -92,7 +78,7 @@ This module has been built on and tested against Puppet 3 and higher.
 
 The module has been tested on:
 - Ubuntu 12.04LTS
-
+- Ubuntu 14.04LTS
 
 Authors
 -------------
