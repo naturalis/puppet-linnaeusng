@@ -3,6 +3,10 @@ puppet-linnaeusng
 
 Puppet modules for deployment of Linnaeus_ng software
 
+General remarks
+-------------
+Advised memory specification of server is atleast 2GB.
+
 Parameters
 -------------
 All parameters are read from hiera or provisioned by The Foreman. Most parameters have sensible defaults, some exeptions: 
@@ -46,7 +50,7 @@ linnaeusng:
     directories:
       - path: '/var/www/linnaeusng'
         allow_override: All
-        options: '-Indexes FollowSymLinks MultiViews'
+        options: '-Indexes +FollowSymLinks +MultiViews'
     port: 80
     ssl: no
     serveradmin: aut@naturalis.nl
