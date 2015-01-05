@@ -9,20 +9,23 @@ class linnaeusng::database (
   $mysqlUser,
   $mysqlPassword,
   $mysqlRootPassword,
+  $configuredb,
 ) {
 
   class { 'mysql::bindings':
     php_enable       => true
   }
+
   class { 'mysql::server':
     root_password    => $mysqlRootPassword
   }
 
-  mysql::db { $userDbName:
-    user           => $mysqlUser,
-    password       => $mysqlPassword,
-    host           => 'localhost',
-    grant          => ['ALL'],
+  if ($configuredb == true) {
+    mysql::db { $userDbName:
+      user           => $mysqlUser,
+      password       => $mysqlPassword,
+      host           => 'localhost',
+      grant          => ['ALL'],
+    }
   }
-
 }

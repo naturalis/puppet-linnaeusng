@@ -72,7 +72,7 @@ class { linnaeusng: }
 ```
 Result
 -------------
-Working webserver with mysql, code from github and config files based on templates.
+Working webserver with mysql, code from github and config files based on templates. zoneinfo data is also inserted into mysql once and everytime /usr/share/zonedata changes. 
 
 
 Limitations

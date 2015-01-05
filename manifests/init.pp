@@ -58,13 +58,12 @@ class linnaeusng (
   # include concat and mysql 
   include concat::setup
 
-  if ($configuredb == true) {
-    class { 'linnaeusng::database':
-      userDbName          => $userDbName,
-      mysqlUser           => $mysqlUser,
-      mysqlPassword       => $mysqlPassword,
-      mysqlRootPassword   => $mysqlRootPassword,
-    }
+  class { 'linnaeusng::database':
+    userDbName          => $userDbName,
+    mysqlUser           => $mysqlUser,
+    mysqlPassword       => $mysqlPassword,
+    mysqlRootPassword   => $mysqlRootPassword,
+    configuredb         => $configuredb,
   }
 
   # install apache
@@ -123,4 +122,19 @@ class linnaeusng (
     group         => $apachegroup,
     require       => File[$webdirs],
   }
+
+# insert zoneinfo data into mysql
+  file { '/usr/share/zoneinfo':
+    audit         => mtime,
+    recurse       => true,
+    notify        => Exec['mysql_tzinfo'],
+    require       => Class['mysql::server']
+  }
+
+  exec { 'mysql_tzinfo':
+    refreshonly   => true,
+    command       => '/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo | /usr/bin/mysql -u root mysql',
+    require       => Class['mysql::server']
+  }
+
 }
