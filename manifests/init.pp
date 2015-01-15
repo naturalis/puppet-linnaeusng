@@ -100,9 +100,9 @@ class linnaeusng (
   file { $rwwebdirs:
     ensure      => 'directory',
     mode        => '0660',
-    owner       => root,
+    owner       => 'root',
     group       => $apachegroup,
-    recurse     => true,
+#    recurse     => true,
     require     => File[$webdirs],
   }
 
@@ -110,7 +110,7 @@ class linnaeusng (
   file { "${coderoot}/configuration/admin/configuration.php":
     content       => template('linnaeusng/adminconfig.erb'),
     mode          => '0640',
-    owner         => root,
+    owner         => 'root',
     group         => $apachegroup,
     require       => File[$webdirs],
   }
@@ -118,7 +118,7 @@ class linnaeusng (
   file { "${coderoot}/configuration/app/configuration.php":
     content       => template('linnaeusng/appconfig.erb'),
     mode          => '0640',
-    owner         => root,
+    owner         => 'root',
     group         => $apachegroup,
     require       => File[$webdirs],
   }
