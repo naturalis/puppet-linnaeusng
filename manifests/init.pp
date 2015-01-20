@@ -124,7 +124,7 @@ class linnaeusng (
   }
 
 # insert zoneinfo data into mysql
-  file { '/usr/share/zoneinfo':
+  file { '/usr/share/zoneinfo/zone.tab':
     audit         => mtime,
     recurse       => true,
     notify        => Exec['mysql_tzinfo'],
