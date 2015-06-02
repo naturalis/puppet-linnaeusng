@@ -4,26 +4,21 @@
 #
 # Author : Hugo van Duijn
 #
-class linnaeusng::database (
-  $userDbName,
-  $mysqlUser,
-  $mysqlPassword,
-  $mysqlRootPassword,
-  $configuredb,
-) {
+class linnaeusng::database ()
+{
 
   class { 'mysql::bindings':
     php_enable       => true
   }
 
   class { 'mysql::server':
-    root_password    => $mysqlRootPassword
+    root_password    => $linnaeusng::mysqlRootPassword
   }
 
-  if ($configuredb == true) {
-    mysql::db { $userDbName:
-      user           => $mysqlUser,
-      password       => $mysqlPassword,
+  if ($linnaeusng::configuredb == true) {
+    mysql::db { $linnaeusng::userDbName:
+      user           => $linnaeusng::mysqlUser,
+      password       => $linnaeusng::mysqlPassword,
       host           => 'localhost',
       grant          => ['ALL'],
     }

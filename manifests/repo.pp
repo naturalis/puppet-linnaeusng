@@ -34,29 +34,29 @@ class linnaeusng::repo (
       ensure    => directory,
     }->
     file { "/root/.ssh/${repokeyname}":
-      ensure    => "present",
+      ensure    => 'present',
       content   => $repokey,
-      mode      => 600,
+      mode      => '0600',
     }->
     file { '/root/.ssh/config':
-      ensure    => "present",
+      ensure    => 'present',
       content   =>  template('linnaeusng/sshconfig.erb'),
-      mode      => 600,
+      mode      => '0600',
     }->
     file{ '/usr/local/sbin/known_hosts.sh' :
-      ensure    => present,
-      mode      => 0700,
+      ensure    => 'present',
+      mode      => '0700',
       source    => 'puppet:///modules/linnaeusng/known_hosts.sh',
     }->
     exec{ 'add_known_hosts' :
-      command   => "/usr/local/sbin/known_hosts.sh",
-      path      => "/sbin:/usr/bin:/usr/local/bin/:/bin/",
+      command   => '/usr/local/sbin/known_hosts.sh',
+      path      => '/sbin:/usr/bin:/usr/local/bin/:/bin/',
       provider  => shell,
       user      => 'root',
       unless    => 'test -f /root/.ssh/known_hosts'
     }->
     file{ '/root/.ssh/known_hosts':
-      mode      => 600,
+      mode      => '0600',
     }->
     vcsrepo { $repolocation:
       ensure    => $repoversion,
@@ -68,4 +68,3 @@ class linnaeusng::repo (
     }
   }
 }
-

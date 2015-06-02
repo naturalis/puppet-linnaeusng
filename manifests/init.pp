@@ -5,7 +5,7 @@
 # Author : Hugo van Duijn
 #
 class linnaeusng (
-  $configuredb         = true,
+  $configuredb         = false,
   $coderepo            = 'git@github.com:naturalis/linnaeus_ng.git',
   $repotype            = 'git',
   $repoversion         = 'present',
@@ -43,41 +43,37 @@ class linnaeusng (
   $mysqlPassword       = 'mysqlpassword',
   $mysqlRootPassword   = 'defaultrootpassword',
   $appVersion          = '1.0.0',
-  $instances           = {'linnaeusng.naturalis.nl' => { 
-                           'serveraliases'   => '*.naturalis.nl',
-                           'aliases'         => [{ 'alias' => '/linnaeus_ng', 'path' => '/var/www/linnaeusng/www' }],
-                           'docroot'         => '/var/www/linnaeusng',
-                           'directories'     => [{ 'path' => '/var/www/linnaeusng', 'options' => '-Indexes +FollowSymLinks +MultiViews', 'allow_override' => 'All' }],
-                           'port'            => 80,
-                           'serveradmin'     => 'webmaster@linnaeusng.naturalis.nl',
-                           'priority'        => 10,
+  $instances           = {'linnaeusng.naturalis.nl' => {
+                            'serveraliases'   => '*.naturalis.nl',
+                            'aliases'         => [{ 'alias' => '/linnaeus_ng', 'path' => '/var/www/linnaeusng/www' }],
+                            'docroot'         => '/var/www/linnaeusng',
+                            'directories'     => [{ 'path' => '/var/www/linnaeusng', 'options' => '-Indexes +FollowSymLinks +MultiViews', 'allow_override' => 'All' }],
+                            'port'            => 80,
+                            'serveradmin'     => 'webmaster@linnaeusng.naturalis.nl',
+                            'priority'        => 10,
                           },
                           },
 ) {
 
-  # include concat and mysql 
+  # include concat and mysql
   include concat::setup
 
-  class { 'linnaeusng::database':
-    userDbName          => $userDbName,
-    mysqlUser           => $mysqlUser,
-    mysqlPassword       => $mysqlPassword,
-    mysqlRootPassword   => $mysqlRootPassword,
-    configuredb         => $configuredb,
-  }
+  class { 'linnaeusng::database': }
 
   # install apache
   class { 'apache':
-    default_mods => true,
-    mpm_module => 'prefork',
+    default_mods  => true,
+    mpm_module    => 'prefork',
   }
   include apache::mod::php
   include apache::mod::rewrite
 
+  # install php curl
+  php::module { ['curl']: }
 
   # Create all virtual hosts from hiera
-  class { 'linnaeusng::instances': 
-    instances => $instances,
+  class { 'linnaeusng::instances':
+    instances     => $instances,
   }
 
   class { 'linnaeusng::repo':
@@ -90,7 +86,7 @@ class linnaeusng (
     repotype      => $repotype,
   }
 
-  # create application specific directories  
+  # create application specific directories
   file { $webdirs:
     ensure      => 'directory',
     mode        => '0755',
@@ -102,11 +98,10 @@ class linnaeusng (
     mode        => '0660',
     owner       => 'root',
     group       => $apachegroup,
-#    recurse     => true,
     require     => File[$webdirs],
   }
 
-  # create config files based on templates. 
+  # create config files based on templates.
   file { "${coderoot}/configuration/admin/configuration.php":
     content       => template('linnaeusng/adminconfig.erb'),
     mode          => '0640',
