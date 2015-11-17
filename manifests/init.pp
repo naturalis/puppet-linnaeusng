@@ -12,6 +12,7 @@ class linnaeusng (
   $repokey             = undef,
   $repokeyname         = 'githubkey',
   $reposshauth         = true,
+  $managerepo          = false,
   $coderoot            = '/var/www/linnaeusng',
   $webdirs             = ['/var/www/linnaeusng',
                           '/var/www/linnaeusng/www',
@@ -76,14 +77,8 @@ class linnaeusng (
     instances     => $instances,
   }
 
+  # Checkout repository
   class { 'linnaeusng::repo':
-    repolocation  => $coderoot,
-    coderepo      => $coderepo,
-    repoversion   => $repoversion,
-    reposshauth   => $reposshauth,
-    repokey       => $repokey,
-    repokeyname   => $repokeyname,
-    repotype      => $repotype,
   }
 
   # create application specific directories
@@ -118,18 +113,11 @@ class linnaeusng (
     require       => File[$webdirs],
   }
 
-# insert zoneinfo data into mysql
-  file { '/usr/share/zoneinfo/zone.tab':
-    audit         => mtime,
-    recurse       => true,
-    notify        => Exec['mysql_tzinfo'],
-    require       => Class['mysql::server']
-  }
-
+# insert zoneinfo data into mysql, use trigger file in /opt to ensure the command runs only once.
   exec { 'mysql_tzinfo':
-    refreshonly   => true,
-    command       => '/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo | /usr/bin/mysql -u root mysql',
-    require       => Class['mysql::server']
+    command       => "/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo | /usr/bin/mysql -u root -p${mysqlRootPassword} mysql > /opt/mysql_tzinfo_to_sql.trigger",
+    require       => Class['linnaeusng::database'],
+    unless        => '/usr/bin/test -f /opt/mysql_tzinfo_to_sql.trigger'
   }
 
 }

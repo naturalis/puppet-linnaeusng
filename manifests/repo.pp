@@ -6,26 +6,22 @@
 #
 #
 class linnaeusng::repo (
-  $coderepo         = 'git@github.com:naturalis/drupal_naturalis_installation_profile.git',
-  $repoversion      = 'present',
-  $reposshauth      = true,
-  $repokey          = undef,
-  $repokeyname      = 'githubkey',
-  $repotype         = 'git',
-  $repolocation     = '/var/www/linnaeusng',
 ){
 
+# define variable for template
+  $_repokeyname = $linnaeusng::repokeyname
 
 # ensure git package for repo checkouts
   package { 'git':
     ensure => installed,
   }
 
-  if ( $reposshauth == false ) {
-    vcsrepo { $repolocation:
-      ensure    => $repoversion,
-      provider  => $repotype,
-      source    => $coderepo,
+  if ( $linnaeusng::managerepo == true ) {
+  if ( $linnaeusng::reposshauth == false ) {
+    vcsrepo { $linnaeusng::coderoot:
+      ensure    => $linnaeusng::repoversion,
+      provider  => $linnaeusng::repotype,
+      source    => $linnaeusng::coderepo,
       revision  => 'master',
       require   => Package['git']
     }
@@ -33,9 +29,9 @@ class linnaeusng::repo (
     file { '/root/.ssh':
       ensure    => directory,
     }->
-    file { "/root/.ssh/${repokeyname}":
+    file { "/root/.ssh/${linnaeusng::repokeyname}":
       ensure    => 'present',
-      content   => $repokey,
+      content   => $linnaeusng::repokey,
       mode      => '0600',
     }->
     file { '/root/.ssh/config':
@@ -58,13 +54,14 @@ class linnaeusng::repo (
     file{ '/root/.ssh/known_hosts':
       mode      => '0600',
     }->
-    vcsrepo { $repolocation:
-      ensure    => $repoversion,
-      provider  => $repotype,
-      source    => $coderepo,
+    vcsrepo { $linnaeusng::coderoot:
+      ensure    => $linnaeusng::repoversion,
+      provider  => $linnaeusng::repotype,
+      source    => $linnaeusng::coderepo,
       user      => 'root',
       revision  => 'master',
       require   => Package['git']
     }
+  }
   }
 }

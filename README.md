@@ -12,6 +12,8 @@ Parameters
 All parameters are read from hiera or provisioned by The Foreman. Most parameters have sensible defaults, some exeptions: 
 - linnaeusng::configuredb: 'true' 
 This configures the database, creates users, adjusts permissions for the database users.
+- linnaeusng::managerepo
+Manages the repocheckout, set to false by default. 
 - linnaeusng::repoversion
 Manages the version of repocheckout, present = default and advised for production environments. latest may be usefull for development environments. 
 - linnaeusng::reposshauth
@@ -30,9 +32,13 @@ Classes
 
 Dependencies
 -------------
-- naturalis/base
-- puppetlabs/vcsrepo
-- puppetlabs/apache2
+- naturalis/base 1.0.0
+- naturalis/puppet-php 1.0.0 ( forked from thias/puppet-php )
+- puppetlabs/puppet-vcsrepo 1.3.1
+- puppetlabs/puppet-apache 1.6.0
+- puppetlabs/puppet-concat 1.2.4
+- puppetlabs/puppet-mysql 3.6.1
+
 
 Examples
 -------------
@@ -58,6 +64,7 @@ linnaeusng:
 linnaeusng::mysqlUser: 'linnaeus_user'
 linnaeusng::mysqlPassword: 'skgh23876SDFSD2342
 linnaeusng::configuredb: true
+linnaeusng::managerepo: true
 linnaeusng::repoversion: present
 linnaeusng::coderepo: 'git@github.com:naturalis/linnaeus_ng.git',
 linnaeusng::repotype: 'git',
