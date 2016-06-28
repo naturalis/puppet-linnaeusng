@@ -54,6 +54,10 @@ class linnaeusng (
                             'priority'        => 10,
                           },
                           },
+# PHP Settings
+  $upload_max_filesize  = '15M',
+  $max_file_uploads     = '200',
+  $post_max_size        = '100M',
 ) {
 
   # include concat and mysql
@@ -71,6 +75,13 @@ class linnaeusng (
 
   # install php curl
   php::module { ['curl']: }
+
+  php::ini { '/etc/php5/apache2/php.ini':
+    upload_max_filesize       => $upload_max_filesize,
+    post_max_size             => $post_max_size,
+    max_file_uploads          => $max_file_uploads,
+    require                   => Class['apache']
+  }
 
   # Create all virtual hosts from hiera
   class { 'linnaeusng::instances':
