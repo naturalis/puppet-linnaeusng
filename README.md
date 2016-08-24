@@ -1,7 +1,7 @@
 puppet-linnaeusng
 ===================
 
-Puppet modules for deployment of Linnaeus_ng software
+Puppet modules for deployment of Linnaeus_ng software and seperate class for loadbalancer with configuration tuned for linnaeus. 
 
 General remarks
 -------------
@@ -29,6 +29,9 @@ Classes
 - linnaeusng::database
 - linnaeusng::instances
 - linnaeusng::repo
+- linnaeusng::lb
+- linnaeusng::lbcerts
+
 
 Dependencies
 -------------

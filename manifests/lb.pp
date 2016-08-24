@@ -5,13 +5,15 @@
 #
 #
 class linnaeusng::lb (
-  $private,
-  $cert,
-  $cacert,
-  $private_keyname = '/etc/ssl/private/STAR_linnaeus_naturalis_nl_key',
-  $cert_keyname    = '/etc/ssl/certs/STAR_linnaeus_naturalis_nl_pem',
-  $cacert_keyname  = '/etc/ssl/certs/STAR_linnaeus_naturalis_nl_cacert.pem',
-
+# use certificates, place certificates in files folder of puppet manifest. Be aware of the .gitignore so certs don't end up on github!
+  $usecerthash     = false,
+  $cert_hash       = { 'certname1' => { 'private' => 'cert1.pem',
+                                        'cert' => 'cert1.crt',
+                                        'cacert' => 'cacert.pem' },
+                       'certname2' => { 'private' => 'cert2.pem',
+                                        'cert' => 'cert1.crt',
+                                        'cacert' => 'cacert.pem' }
+                     },
   $vhost       = { 'default_server'            => { 'proxy' => 'http://default_server',
                                                     'server_name' => ['_'],
                                                     'ssl'         => true,
@@ -204,27 +206,13 @@ class linnaeusng::lb (
 
 # configure SSL 
 
-  file { $private_keyname :
-    ensure  => present,
-    content => $private,
-    mode    => '0600',
-  }
-
-  file { $cert_keyname :
-    ensure  => present,
-    content => $cert,
-    mode    => '0600',
-  }
-
-  file { $cacert_keyname :
-    ensure  => present,
-    content => $cacert,
-    mode    => '0600',
+  if $usecerthash == true {
+    create_resources('linnaeusng::lbcerts', $cert_hash)
   }
 
 
+# install nginx
   class { 'nginx':
-    require => [File[$private_keyname],File[$cert_keyname],File[$cacert_keyname]],
   }
 
 #  create_resources
