@@ -44,6 +44,7 @@ class linnaeusng (
   $mysqlPassword       = 'mysqlpassword',
   $mysqlRootPassword   = 'defaultrootpassword',
   $appVersion          = '1.0.0',
+  $cron                = false,
   $instances           = {'linnaeusng.naturalis.nl' => {
                             'serveraliases'   => '*.naturalis.nl',
                             'aliases'         => [{ 'alias' => '/linnaeus_ng', 'path' => '/var/www/linnaeusng/www' }],
@@ -131,4 +132,13 @@ class linnaeusng (
     unless        => '/usr/bin/test -f /opt/mysql_tzinfo_to_sql.trigger'
   }
 
+  if ($cron == true){
+    $randomcron = fqdn_rand(30)
+    cron { 'linnaeus data push':
+      command => '/usr/bin/php /var/www/linnaeusng/cron/server-stat-push/linnaeus_data_push.php',
+      user    => root,
+      minute  => [$randomcron],
+      hour    => 0
+    }
+  }
 }
