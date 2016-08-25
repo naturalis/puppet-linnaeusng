@@ -7,10 +7,10 @@
 define linnaeusng::lbcerts (
   $private,
   $cert,
-  $cacert,
-  $private_keyname = "/etc/ssl/private/${title}_key",
-  $cert_keyname    = "/etc/ssl/certs/${title}_pem",
-  $cacert_keyname  = "/etc/ssl/certs/${title}_cacert.pem",
+  $cacert          = undef,
+  $private_keyname = "/etc/ssl/private/${private}",
+  $cert_keyname    = "/etc/ssl/certs/${cert}",
+  $cacert_keyname  = "/etc/ssl/certs/${cacert}",
 ){
 
 # configure SSL 
@@ -27,9 +27,12 @@ define linnaeusng::lbcerts (
     mode    => '0600',
   }
 
-  file { $cacert_keyname :
-    ensure  => present,
-    source  => "puppet:///modules/linnaeusng/${cacert}",
-    mode    => '0600',
+  if $cacert {
+    file { $cacert_keyname :
+      ensure  => present,
+      source  => "puppet:///modules/linnaeusng/${cacert}",
+      mode    => '0600',
+    }
   }
+  
 }
