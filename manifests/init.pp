@@ -135,7 +135,7 @@ class linnaeusng (
   if ($cron == true){
     $randomcron = fqdn_rand(30)
     cron { 'linnaeus data push':
-      command => '/usr/bin/php /var/www/linnaeusng/cron/server-stat-push/linnaeus_data_push.php',
+      command => 'cd /var/www/linnaeusng/cron/server-stat-push/; /usr/bin/php /var/www/linnaeusng/cron/server-stat-push/linnaeus_data_push.php',
       user    => root,
       minute  => [$randomcron],
       hour    => 0
