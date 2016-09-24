@@ -55,7 +55,7 @@ class linnaeusng::lb (
                                                     'ssl_key'     => '/etc/ssl/private/STAR_linnaeus_naturalis_nl.key',
                                                    },
                    'various-005_vhost'         => { 'proxy' => 'http://various-005',
-                                                    'server_name' => ['various-005.linnaeus.naturalis.nl'],
+                                                    'server_name' => ['various-005.linnaeus.naturalis.nl','doignies.linnaeus.naturalis.nl'],
                                                     'ssl'         => true,
                                                     'ssl_cert'    => '/etc/ssl/certs/STAR_linnaeus_naturalis_nl.pem',
                                                     'ssl_key'     => '/etc/ssl/private/STAR_linnaeus_naturalis_nl.key',
