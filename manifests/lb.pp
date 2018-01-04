@@ -268,7 +268,7 @@ class linnaeusng::lb (
                                                     'ssl_key'     => '/etc/ssl/private/STAR_linnaeus_naturalis_nl.key',
                                                    },
                    'various-032_vhost'         => { 'proxy' => 'http://various-032',
-                                                    'server_name' => ['various-032.linnaeus.naturalis.nl'],
+                                                    'server_name' => ['www.dierenzoeker.nl','dierenzoeker.nl','various-032.linnaeus.naturalis.nl'],
                                                     'ssl'         => true,
                                                     'ssl_cert'    => '/etc/ssl/certs/STAR_linnaeus_naturalis_nl.pem',
                                                     'ssl_key'     => '/etc/ssl/private/STAR_linnaeus_naturalis_nl.key',
