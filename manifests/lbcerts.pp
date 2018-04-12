@@ -4,7 +4,7 @@
 #
 #
 #
-define linnaeusng::lbcerts (
+define role_linnaeusng::lbcerts (
   $private,
   $cert,
   $cacert          = undef,
@@ -17,20 +17,20 @@ define linnaeusng::lbcerts (
 
   file { $private_keyname :
     ensure  => present,
-    source  => "puppet:///modules/linnaeusng/${private}",
+    source  => "puppet:///modules/role_linnaeusng/${private}",
     mode    => '0600',
   }
 
   file { $cert_keyname :
     ensure  => present,
-    source  => "puppet:///modules/linnaeusng/${cert}",
+    source  => "puppet:///modules/role_linnaeusng/${cert}",
     mode    => '0600',
   }
 
   if $cacert {
     file { $cacert_keyname :
       ensure  => present,
-      source  => "puppet:///modules/linnaeusng/${cacert}",
+      source  => "puppet:///modules/role_linnaeusng/${cacert}",
       mode    => '0600',
     }
   }
