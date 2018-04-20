@@ -9,14 +9,22 @@
 # Apache2 license 2017.
 #
 class role_linnaeusng (
-  $compose_version      = '1.17.1',
-  $repo_source          = 'https://github.com/naturalis/docker-linnaeusng.git',
-  $repo_ensure          = 'latest',
-  $repo_dir             = '/opt/docker-linnaeusng',
-  $mysql_host           = 'db',
-  $mysql_user           = 'linnaeus_user',
-  $mysql_password       = 'PASSWORD',
-  $mysql_root_password  = 'ROOTPASSWORD',
+  $compose_version              = '1.17.1',
+  $repo_source                  = 'https://github.com/naturalis/docker-linnaeusng.git',
+  $repo_ensure                  = 'latest',
+  $repo_dir                     = '/opt/docker-linnaeusng',
+  $mysql_host                   = 'db',
+  $mysql_user                   = 'linnaeus_user',
+  $mysql_password               = 'PASSWORD',
+  $mysql_root_password          = 'ROOTPASSWORD',
+  $mysql_slow_query_log         = '1',
+  $mysql_long_query_time        = '1',
+  $git_branch                   = 'master',
+  $composer_allow_superuser     = '1',
+  $table_prefix                 = '',
+  $base_path                    = '/data',
+  $dev                          = '0',
+
 ){
 
   include 'docker'
@@ -47,8 +55,15 @@ class role_linnaeusng (
 
   file { '/data/linnaeus/mysqlconf/my-linnaeus.cnf':
     ensure   => file,
-    mode     => '0600',
+    mode     => '0644',
     content  => template('role_linnaeusng/my-linnaeus.cnf.erb'),
+    require  => File['/data/linnaeus/mysqlconf'],
+  }
+
+  file { '/data/linnaeus/mysqlconf/my-linnaeus-client.cnf':
+    ensure   => file,
+    mode     => '0600',
+    content  => template('role_linnaeusng/my-linnaeus-client.cnf.erb'),
     require  => File['/data/linnaeus/mysqlconf'],
   }
 
