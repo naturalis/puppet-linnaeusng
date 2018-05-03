@@ -24,7 +24,14 @@ class role_linnaeusng (
   $table_prefix                 = '',
   $base_path                    = '/data',
   $dev                          = '0',
-
+  $logrotate_hash               = { 'apache2'    => { 'log_path' => '/data/linnaeus/apachelog',
+                                                      'post_rotate' => "(cd ${repo_dir}; docker-compose exec linnaeus service apache2 reload)"},
+                                    'mysql'      => { 'log_path' => '/data/linnaeus/mysqllog',
+                                                      'post_rotate' => "(cd ${repo_dir}; docker-compose exec db mysqladmin flush-logs)"},
+                                    'linnaeus'   => { 'log_path' => '/data/linnaeus/www/log',
+                                                      'rotate' => '183',
+                                                      'extraline' => 'su www-data www-data'},
+                                 },
 ){
 
   include 'docker'
@@ -35,7 +42,7 @@ class role_linnaeusng (
     cwd  => $role_linnaeusng::repo_dir,
   }
 
-  file { ['/data','/data/linnaeus','/data/linnaeus/initdb','/data/linnaeus/mysqlconf','/opt/traefik', $role_linnaeusng::repo_dir] :
+  file { ['/data','/data/linnaeus','/data/linnaeus/initdb','/data/linnaeus/mysqlconf','/data/linnaeus/apachelog','/data/linnaeus/mysqllog','/opt/traefik', $role_linnaeusng::repo_dir] :
     ensure              => directory,
   }
 
@@ -131,5 +138,7 @@ class role_linnaeusng (
      repeat  => 1,
      range => '5-7',
   }
+
+  create_resources('role_linnaeusng::logrotate', $logrotate_hash)
 
 }
