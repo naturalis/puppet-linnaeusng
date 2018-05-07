@@ -24,6 +24,7 @@ class role_linnaeusng (
   $table_prefix                 = '',
   $base_path                    = '/data',
   $dev                          = '0',
+  $manageenv                    = 'no',
   $logrotate_hash               = { 'apache2'    => { 'log_path' => '/data/linnaeus/apachelog',
                                                       'post_rotate' => "(cd ${repo_dir}; docker-compose exec linnaeus service apache2 reload)"},
                                     'mysql'      => { 'log_path' => '/data/linnaeus/mysqllog',
@@ -77,6 +78,7 @@ class role_linnaeusng (
   file { "${role_linnaeusng::repo_dir}/.env":
     ensure   => file,
     mode     => '0600',
+    replace  => $role_linnaeusng::manageenv,
     content  => template('role_linnaeusng/env.erb'),
     require  => Vcsrepo[$role_linnaeusng::repo_dir],
     notify   => Exec['Restart containers on change'],

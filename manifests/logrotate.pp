@@ -1,4 +1,4 @@
-# Linnaeus Loadbalancer / certificates creation
+# Linnaeus Logrotate creation
 #
 #
 #
