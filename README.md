@@ -10,27 +10,27 @@ Advised memory specification of server is atleast 2GB.
 Parameters
 -------------
 All parameters are read from hiera or provisioned by The Foreman. Most parameters have sensible defaults, some exeptions: 
-- linnaeusng::configuredb: 'true' 
+- role_linnaeusng::configuredb: 'true' 
 This configures the database, creates users, adjusts permissions for the database users.
-- linnaeusng::managerepo
+- role_linnaeusng::managerepo
 Manages the repocheckout, set to false by default. 
-- linnaeusng::repoversion
+- role_linnaeusng::repoversion
 Manages the version of repocheckout, present = default and advised for production environments. latest may be usefull for development environments. 
-- linnaeusng::reposshauth
+- role_linnaeusng::reposshauth
 Use SSH authentication for the git repository, if set to true then the contents of repokey must filled with the private key which has access to the repository
-- linnaeusng::repokey
+- role_linnaeusng::repokey
 Fill with the private key when ssh authentication is needed for the repository
 
 
 
 Classes
 -------------
-- linnaeusng
-- linnaeusng::database
-- linnaeusng::instances
-- linnaeusng::repo
-- linnaeusng::lb
-- linnaeusng::lbcerts
+- role_linnaeusng
+- role_linnaeusng::database
+- role_linnaeusng::instances
+- role_linnaeusng::repo
+- role_linnaeusng::lb
+- role_linnaeusng::lbcerts
 
 
 Dependencies

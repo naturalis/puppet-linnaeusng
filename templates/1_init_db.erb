@@ -1,0 +1,4 @@
+CREATE DATABASE linnaeus_ng ;
+GRANT ALL PRIVILEGES ON linnaeus_ng.* TO '<%= @mysql_user %>'@'%' IDENTIFIED BY '<%= @mysql_password %>';
+GRANT ALL PRIVILEGES ON linnaeus_ng.* TO '<%= @mysql_user %>'@'localhost' IDENTIFIED BY '<%= @mysql_password %>';
+set global sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';

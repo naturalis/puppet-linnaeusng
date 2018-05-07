@@ -1,144 +1,144 @@
-# == Class: linnaeusng
+# == Class: role_linnaeusng
 #
-# init.pp for linnaeusng puppet module
+# === Authors
 #
-# Author : Hugo van Duijn
+# Author Name <hugo.vanduijn@naturalis.nl>
 #
-class linnaeusng (
-  $configuredb         = false,
-  $coderepo            = 'git@github.com:naturalis/linnaeus_ng.git',
-  $repotype            = 'git',
-  $repoversion         = 'present',
-  $repokey             = undef,
-  $repokeyname         = 'githubkey',
-  $reposshauth         = true,
-  $managerepo          = false,
-  $coderoot            = '/var/www/linnaeusng',
-  $webdirs             = ['/var/www/linnaeusng',
-                          '/var/www/linnaeusng/www',
-                          '/var/www/linnaeusng/www/admin',
-                          '/var/www/linnaeusng/www/admin/templates',
-                          '/var/www/linnaeusng/www/app',
-                          '/var/www/linnaeusng/www/app/style',
-                          '/var/www/linnaeusng/www/app/templates',
-                          '/var/www/linnaeusng/www/shared',
-                          '/var/www/linnaeusng/www/shared/media'],
-  $rwwebdirs           = ['/var/www/linnaeusng/www/app/templates/templates_c',
-                          '/var/www/linnaeusng/www/app/templates/cache',
-                          '/var/www/linnaeusng/www/app/style/custom',
-                          '/var/www/linnaeusng/www/shared/cache',
-                          '/var/www/linnaeusng/www/shared/media/project',
-                          '/var/www/linnaeusng/log/',
-                          '/var/www/linnaeusng/www/admin/templates/templates_c',
-                          '/var/www/linnaeusng/www/admin/templates/cache'],
-  $apachegroup         = 'www-data',
-  $userDbHost          = 'localhost',
-  $userDbName          = 'linnaeusng',
-  $userDbPrefix        = undef,
-  $userDbCharset       = 'utf8',
-  $adminDbHost         = 'localhost',
-  $adminDbName         = 'linnaeusng',
-  $adminDbPrefix       = undef,
-  $adminDbCharset      = 'utf8',
-  $mysqlUser           = 'linnaeus_user',
-  $mysqlPassword       = 'mysqlpassword',
-  $mysqlRootPassword   = 'defaultrootpassword',
-  $appVersion          = '1.0.0',
-  $cron                = false,
-  $instances           = {'linnaeusng.naturalis.nl' => {
-                            'serveraliases'   => '*.naturalis.nl',
-                            'aliases'         => [{ 'alias' => '/linnaeus_ng', 'path' => '/var/www/linnaeusng/www' }],
-                            'docroot'         => '/var/www/linnaeusng',
-                            'directories'     => [{ 'path' => '/var/www/linnaeusng', 'options' => '-Indexes +FollowSymLinks +MultiViews', 'allow_override' => 'All' }],
-                            'port'            => 80,
-                            'serveradmin'     => 'webmaster@linnaeusng.naturalis.nl',
-                            'priority'        => 10,
-                          },
-                          },
-# PHP Settings
-  $upload_max_filesize  = '15M',
-  $max_file_uploads     = '200',
-  $post_max_size        = '100M',
-) {
+# === Copyright
+#
+# Apache2 license 2017.
+#
+class role_linnaeusng (
+  $compose_version              = '1.17.1',
+  $repo_source                  = 'https://github.com/naturalis/docker-linnaeusng.git',
+  $repo_ensure                  = 'latest',
+  $repo_dir                     = '/opt/docker-linnaeusng',
+  $mysql_host                   = 'db',
+  $mysql_user                   = 'linnaeus_user',
+  $mysql_password               = 'PASSWORD',
+  $mysql_root_password          = 'ROOTPASSWORD',
+  $mysql_slow_query_log         = '1',
+  $mysql_long_query_time        = '1',
+  $git_branch                   = 'master',
+  $composer_allow_superuser     = '1',
+  $table_prefix                 = '',
+  $base_path                    = '/data',
+  $dev                          = '0',
+  $logrotate_hash               = { 'apache2'    => { 'log_path' => '/data/linnaeus/apachelog',
+                                                      'post_rotate' => "(cd ${repo_dir}; docker-compose exec linnaeus service apache2 reload)"},
+                                    'mysql'      => { 'log_path' => '/data/linnaeus/mysqllog',
+                                                      'post_rotate' => "(cd ${repo_dir}; docker-compose exec db mysqladmin flush-logs)"},
+                                    'linnaeus'   => { 'log_path' => '/data/linnaeus/www/log',
+                                                      'rotate' => '183',
+                                                      'extraline' => 'su www-data www-data'},
+                                 },
+){
 
-  # include concat and mysql
-  include concat::setup
+  include 'docker'
+  include 'stdlib'
 
-  class { 'linnaeusng::database': }
-
-  # install apache
-  class { 'apache':
-    default_mods  => true,
-    mpm_module    => 'prefork',
-  }
-  include apache::mod::php
-  include apache::mod::rewrite
-
-  # install php curl
-  php::module { ['curl']: }
-
-  php::ini { '/etc/php5/apache2/php.ini':
-    upload_max_filesize       => $upload_max_filesize,
-    post_max_size             => $post_max_size,
-    max_file_uploads          => $max_file_uploads,
-    require                   => Class['apache']
+  Exec {
+    path => '/usr/local/bin/',
+    cwd  => $role_linnaeusng::repo_dir,
   }
 
-  # Create all virtual hosts from hiera
-  class { 'linnaeusng::instances':
-    instances     => $instances,
+  file { ['/data','/data/linnaeus','/data/linnaeus/initdb','/data/linnaeus/mysqlconf','/data/linnaeus/apachelog','/data/linnaeus/mysqllog','/opt/traefik', $role_linnaeusng::repo_dir] :
+    ensure              => directory,
   }
 
-  # Checkout repository
-  class { 'linnaeusng::repo':
+  file { '/data/linnaeus/initdb/1_init_db.sql':
+    ensure   => file,
+    mode     => '0600',
+    content  => template('role_linnaeusng/1_init_db.erb'),
+    require  => File['/data/linnaeus/initdb'],
   }
 
-  # create application specific directories
-  file { $webdirs:
-    ensure      => 'directory',
-    mode        => '0755',
-    require     => Class['linnaeusng::repo'],
+  file { '/data/linnaeus/initdb/2_empty_database.sql':
+    ensure   => file,
+    mode     => '0600',
+    source   => 'puppet:///modules/role_linnaeusng/2_empty_database.sql',
+    require  => File['/data/linnaeus/initdb'],
   }
 
-  file { $rwwebdirs:
-    ensure      => 'directory',
-    mode        => '0660',
-    owner       => 'root',
-    group       => $apachegroup,
-    require     => File[$webdirs],
+  file { '/data/linnaeus/mysqlconf/my-linnaeus.cnf':
+    ensure   => file,
+    mode     => '0644',
+    content  => template('role_linnaeusng/my-linnaeus.cnf.erb'),
+    require  => File['/data/linnaeus/mysqlconf'],
   }
 
-  # create config files based on templates.
-  file { "${coderoot}/configuration/admin/configuration.php":
-    content       => template('linnaeusng/adminconfig.erb'),
-    mode          => '0640',
-    owner         => 'root',
-    group         => $apachegroup,
-    require       => File[$webdirs],
+  file { '/data/linnaeus/mysqlconf/my-linnaeus-client.cnf':
+    ensure   => file,
+    mode     => '0600',
+    content  => template('role_linnaeusng/my-linnaeus-client.cnf.erb'),
+    require  => File['/data/linnaeus/mysqlconf'],
   }
 
-  file { "${coderoot}/configuration/app/configuration.php":
-    content       => template('linnaeusng/appconfig.erb'),
-    mode          => '0640',
-    owner         => 'root',
-    group         => $apachegroup,
-    require       => File[$webdirs],
+  file { "${role_linnaeusng::repo_dir}/.env":
+    ensure   => file,
+    mode     => '0600',
+    content  => template('role_linnaeusng/env.erb'),
+    require  => Vcsrepo[$role_linnaeusng::repo_dir],
+    notify   => Exec['Restart containers on change'],
   }
 
-# insert zoneinfo data into mysql, use trigger file in /opt to ensure the command runs only once.
-  exec { 'mysql_tzinfo':
-    command       => "/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo | /usr/bin/mysql -u root -p${mysqlRootPassword} mysql > /opt/mysql_tzinfo_to_sql.trigger",
-    require       => Class['linnaeusng::database'],
-    unless        => '/usr/bin/test -f /opt/mysql_tzinfo_to_sql.trigger'
+  class {'docker::compose': 
+    ensure      => present,
+    version     => $role_linnaeusng::compose_version,
+    notify      => Exec['apt_update']
   }
 
-  if ($cron == true){
-    $randomcron = fqdn_rand(30)
-    cron { 'linnaeus data push':
-      command => 'cd /var/www/linnaeusng/cron/server-stat-push/; /usr/bin/php /var/www/linnaeusng/cron/server-stat-push/linnaeus_data_push.php',
-      user    => root,
-      minute  => [$randomcron],
-      hour    => 0
-    }
+  docker_network { 'web':
+    ensure   => present,
   }
+
+  ensure_packages(['git','python3'], { ensure => 'present' })
+
+  vcsrepo { $role_linnaeusng::repo_dir:
+    ensure    => $role_linnaeusng::repo_ensure,
+    source    => $role_linnaeusng::repo_source,
+    provider  => 'git',
+    user      => 'root',
+    revision  => 'master',
+    require   => [Package['git'],File[$role_linnaeusng::repo_dir]]
+  }
+
+  docker_compose { "${role_linnaeusng::repo_dir}/docker-compose.yml":
+    ensure      => present,
+    require     => [
+      Vcsrepo[$role_linnaeusng::repo_dir],
+      File["${role_linnaeusng::repo_dir}/.env"],
+      Docker_network['web'],
+      File['/data/linnaeus/initdb/2_empty_database.sql'],
+      File['/data/linnaeus/initdb/1_init_db.sql']
+    ]
+  }
+
+  exec { 'Pull containers' :
+    command  => 'docker-compose pull',
+    schedule => 'everyday',
+  }
+
+  exec { 'Up the containers to resolve updates' :
+    command  => 'docker-compose up -d',
+    schedule => 'everyday',
+    require  => Exec['Pull containers']
+  }
+
+  exec {'Restart containers on change':
+    refreshonly => true,
+    command     => 'docker-compose up -d',
+    require     => Docker_compose["${role_linnaeusng::repo_dir}/docker-compose.yml"]
+  }
+
+  # deze gaat per dag 1 keer checken
+  # je kan ook een range aan geven, bv tussen 7 en 9 's ochtends
+  schedule { 'everyday':
+     period  => daily,
+     repeat  => 1,
+     range => '5-7',
+  }
+
+  create_resources('role_linnaeusng::logrotate', $logrotate_hash)
+
 }
