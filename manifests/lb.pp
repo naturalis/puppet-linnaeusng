@@ -75,18 +75,6 @@ class role_linnaeusng::lb (
     class { 'role_linnaeusng::lbssl': }
   }
 
-
-# install nginx
-#  Anchor['nginx::begin']
-#  ->
-#  class { 'nginx::config' :
-#    names_hash_bucket_size => '512',
-#    client_max_body_size   => '100M'
-#  }
-
-#  class { 'nginx':
-#  }
-
 class { 'nginx':
   names_hash_bucket_size => '512',
   client_max_body_size   => '100M'
