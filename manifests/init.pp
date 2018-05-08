@@ -49,14 +49,14 @@ class role_linnaeusng (
 
   file { '/data/linnaeus/initdb/1_init_db.sql':
     ensure   => file,
-    mode     => '0600',
+    mode     => '0644',
     content  => template('role_linnaeusng/1_init_db.erb'),
     require  => File['/data/linnaeus/initdb'],
   }
 
   file { '/data/linnaeus/initdb/2_empty_database.sql':
     ensure   => file,
-    mode     => '0600',
+    mode     => '0644',
     source   => 'puppet:///modules/role_linnaeusng/2_empty_database.sql',
     require  => File['/data/linnaeus/initdb'],
   }
