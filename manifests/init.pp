@@ -64,6 +64,7 @@ class role_linnaeusng (
   file { '/data/linnaeus/mysqlconf/my-linnaeus.cnf':
     ensure   => file,
     mode     => '0644',
+    replace  => $role_linnaeusng::manageenv,
     content  => template('role_linnaeusng/my-linnaeus.cnf.erb'),
     require  => File['/data/linnaeus/mysqlconf'],
   }
@@ -71,6 +72,7 @@ class role_linnaeusng (
   file { '/data/linnaeus/mysqlconf/my-linnaeus-client.cnf':
     ensure   => file,
     mode     => '0600',
+    replace  => $role_linnaeusng::manageenv,
     content  => template('role_linnaeusng/my-linnaeus-client.cnf.erb'),
     require  => File['/data/linnaeus/mysqlconf'],
   }

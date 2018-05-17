@@ -5,26 +5,20 @@
 # Author Name <hugo.vanduijn@naturalis.nl>
 #
 #
-class role_linnaeusng::lbssl (
+define role_linnaeusng::lbssl (
+  $letsencrypt_domains,
 )
 {
 
 # install letsencrypt certs only and crontab
-  class { ::letsencrypt:
-    repo           => 'https://github.com/certbot/certbot.git',
-    install_method => 'vcs',
-    version        => 'master',
-    config         => {
-      email  => $role_linnaeusng::lb::letsencrypt_email,
-      server => $role_linnaeusng::lb::letsencrypt_server,
-    }
-  }
-  letsencrypt::certonly { 'letsencrypt_cert':
-    domains                 => $role_linnaeusng::lb::letsencrypt_domains,
+  letsencrypt::certonly { $title:
+    domains                 => $letsencrypt_domains,
     manage_cron             => true,
+    webservice              => 'nginx',
     plugin                  => 'standalone',
     cron_before_command     => 'service nginx stop',
     cron_success_command    => 'service nginx start',
+    require                 => Class['::letsencrypt']
   }
 
 }
