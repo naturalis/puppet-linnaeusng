@@ -43,8 +43,17 @@ class role_linnaeusng (
     cwd  => $role_linnaeusng::repo_dir,
   }
 
-  file { ['/data','/data/linnaeus','/data/linnaeus/initdb','/data/linnaeus/mysqlconf','/data/linnaeus/apachelog','/data/linnaeus/mysqllog','/opt/traefik', $role_linnaeusng::repo_dir] :
+  file { ['/data','/data/linnaeus','/data/linnaeus/initdb','/data/linnaeus/mysqlconf','/data/linnaeus/apachelog','/data/linnaeus/mysqllog','/opt/traefik'] :
     ensure              => directory,
+    owner               => 'root',
+    group               => 'docker',
+    mode                => '0770',
+    require             => Class['docker'],
+  }
+
+  file { $role_linnaeusng::repo_dir:
+    ensure              => directory,
+    mode                => '0770',
   }
 
   file { '/data/linnaeus/initdb/1_init_db.sql':
@@ -114,7 +123,8 @@ class role_linnaeusng (
       File["${role_linnaeusng::repo_dir}/.env"],
       Docker_network['web'],
       File['/data/linnaeus/initdb/2_empty_database.sql'],
-      File['/data/linnaeus/initdb/1_init_db.sql']
+      File['/data/linnaeus/initdb/1_init_db.sql'],
+      File["${role_linnaeusng::repo_dir}/.env"]
     ]
   }
 
