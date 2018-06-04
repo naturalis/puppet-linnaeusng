@@ -13,6 +13,7 @@ class role_linnaeusng (
   $repo_source                  = 'https://github.com/naturalis/docker-linnaeusng.git',
   $repo_ensure                  = 'latest',
   $repo_dir                     = '/opt/docker-linnaeusng',
+  $mysql_db                     = 'linnaeus_ng',
   $mysql_host                   = 'db',
   $mysql_user                   = 'linnaeus_user',
   $mysql_password               = 'PASSWORD',
