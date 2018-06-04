@@ -12,7 +12,7 @@ define role_linnaeusng::lbssl (
   $cert_renew_days      = '30', # don't set this higher than 30 due to --keep-until-renewal option
   $cert_warning_days    = '14',
   $cert_critical_days   = '7',
-
+  $webservice           = 'nginx',
 )
 {
 
@@ -20,10 +20,8 @@ define role_linnaeusng::lbssl (
   letsencrypt::certonly { $title:
     domains                 => $letsencrypt_domains,
     manage_cron             => false,
-    webservice              => 'nginx',
+    webservice              => $webservice,
     plugin                  => 'standalone',
-    cron_before_command     => 'service nginx stop',
-    cron_success_command    => 'service nginx start',
     require                 => Class['::letsencrypt']
   }
 
@@ -33,12 +31,18 @@ define role_linnaeusng::lbssl (
     content => template('role_linnaeusng/checkcert.sh.erb'),
   }
 
+# create command for renewal of certificate
+  $command_start = "${letsencrypt::venv_path}/bin/letsencrypt --text --agree-tos --non-interactive certonly -a standalone --expand --keep-until-expiring "
+  $command_domains = inline_template('-d <%= @letsencrypt_domains.join(" -d ")%>')
+  $command = "${command_start}${command_domains}${command_end}"
 
-# renew certificat when renewdate is due
-  exec { "/bin/echo /opt/puppetlabs/puppet/cache/letsencrypt/renew-${title}.sh":
-    cwd     => '/opt/letsencrypt/.venv/bin',
-    path    => ['/usr/local/sbin','/usr/local/bin','/usr/sbin','/usr/bin','/sbin','/bin','/snap/bin'],
-    onlyif  => "/usr/local/sbin/chkcert_${title}.sh | grep renew 2>/dev/null"
+
+  exec { "letsencrypt renew cert ${title}":
+    command     => "service ${webservice} stop && ${command} && service ${webservice} start",
+    path        => ['/usr/local/sbin','/usr/local/bin','/usr/sbin','/usr/bin','/sbin','/bin','/snap/bin',],
+    environment => "VENV_PATH=${letsencrypt::venv_path}",
+    require     => Class['letsencrypt'],
+    onlyif      => "/usr/local/sbin/chkcert_${title}.sh | grep renew 2>/dev/null"
   }
 
 # export check so sensu monitoring can make use of it
