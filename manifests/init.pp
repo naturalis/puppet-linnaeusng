@@ -130,12 +130,12 @@ class role_linnaeusng (
 
   exec { 'Pull containers' :
     command  => 'docker-compose pull',
-    schedule => 'everyday',
+#    schedule => 'everyday',
   }
 
   exec { 'Up the containers to resolve updates' :
     command  => 'docker-compose up -d',
-    schedule => 'everyday',
+#    schedule => 'everyday',
     require  => Exec['Pull containers']
   }
 
