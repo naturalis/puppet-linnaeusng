@@ -27,12 +27,14 @@ class role_linnaeusng (
   $dev                          = '0',
   $manageenv                    = 'no',
   $logrotate_hash               = { 'apache2'    => { 'log_path' => '/data/linnaeus/apachelog',
-                                                      'post_rotate' => "(cd ${repo_dir}; docker-compose exec linnaeus service apache2 reload)"},
+                                                      'post_rotate' => "(cd ${repo_dir}; docker-compose exec linnaeus service apache2 reload)",
+                                                      'extraline' => 'su root docker'},
                                     'mysql'      => { 'log_path' => '/data/linnaeus/mysqllog',
-                                                      'post_rotate' => "(cd ${repo_dir}; docker-compose exec db mysqladmin flush-logs)"},
+                                                      'post_rotate' => "(cd ${repo_dir}; docker-compose exec db mysqladmin flush-logs)",
+                                                      'extraline' => 'su root docker'},
                                     'linnaeus'   => { 'log_path' => '/data/linnaeus/www/log',
                                                       'rotate' => '183',
-                                                      'extraline' => 'su www-data www-data'},
+                                                      'extraline' => 'su root www-data'},
                                  },
 ){
 
