@@ -109,6 +109,10 @@ class role_linnaeusng (
   }
 
   ensure_packages(['git','python3'], { ensure => 'present' })
+  ensure_packages(['docker-py'],
+    { ensure   => 'absent',
+         provider => 'pip',
+    })
 
   vcsrepo { $role_linnaeusng::repo_dir:
     ensure    => $role_linnaeusng::repo_ensure,
