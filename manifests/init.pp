@@ -50,7 +50,7 @@ class role_linnaeusng (
     ensure              => directory,
     owner               => 'root',
     group               => 'docker',
-    mode                => '0770',
+    mode                => '0775',
     require             => Class['docker'],
   }
 
@@ -139,7 +139,8 @@ class role_linnaeusng (
   exec { 'Up the containers to resolve updates' :
     command  => 'docker-compose up -d',
     schedule => 'everyday',
-    require  => Exec['Pull containers']
+    require  => [Exec['Pull containers'],Docker_compose["${role_linnaeusng::repo_dir}/docker-compose.yml"]]
+
   }
 
   exec {'Restart containers on change':
