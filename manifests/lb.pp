@@ -189,7 +189,7 @@ class role_linnaeusng::lb (
                                                     'ssl_key'     => '/etc/letsencrypt/live/linnaeus.naturalis.nl/privkey.pem',
                                                    },
                    'various-022_server'         => { 'proxy' => 'http://various-022',
-                                                    'server_name' => ['various-022.linnaeus.naturalis.nl','tikk.linnaeus.naturalis.nl'],
+                                                    'server_name' => ['various-022.linnaeus.naturalis.nl','ttik.linnaeus.naturalis.nl'],
                                                     'ssl'         => true,
                                                     'ssl_redirect' => true,
                                                     'ssl_cert'    => '/etc/letsencrypt/live/linnaeus.naturalis.nl/fullchain.pem',
