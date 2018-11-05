@@ -91,7 +91,7 @@ class role_linnaeusng::lb (
                                                     'ssl_key'     => '/etc/letsencrypt/live/linnaeus.naturalis.nl/privkey.pem',
                                                    },
                    'various-011_server'         => { 'proxy' => 'http://various-011',
-                                                    'server_name' => ['various-011.linnaeus.naturalis.nl','seab.linnaeus.naturalis.nl'],
+                                                    'server_name' => ['various-011.linnaeus.naturalis.nl','bseai.linnaeus.naturalis.nl'],
                                                     'ssl_redirect' => true,
                                                     'ssl'         => true,
                                                     'ssl_cert'    => '/etc/letsencrypt/live/linnaeus.naturalis.nl/fullchain.pem',
