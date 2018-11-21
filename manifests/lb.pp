@@ -470,8 +470,12 @@ class role_linnaeusng::lb (
 
 
   class { 'nginx':
-    names_hash_bucket_size => '512',
-    client_max_body_size   => '100M'
+    names_hash_bucket_size  => '512',
+    client_max_body_size    => '100M',
+    keepalive_timeout       => '600s',
+    proxy_send_timeout      => '600s',
+    proxy_read_timeout      => '600s',
+    proxy_connect_timeout   => '600',
   }
 
 #  create_resources
