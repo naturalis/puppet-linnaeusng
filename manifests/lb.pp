@@ -356,7 +356,7 @@ class role_linnaeusng::lb (
                                                     'ssl_key'      => '/etc/letsencrypt/live/linnaeus.naturalis.nl/privkey.pem',
                                                    },
                    'various-043_server'         => { 'proxy' => 'http://various-043',
-                                                    'server_name'  => ['various-043.linnaeus.naturalis.nl'],
+                                                    'server_name'  => ['various-043.linnaeus.naturalis.nl','uitgebloeide-orchideeen.linnaeus.naturalis.nl'],
                                                     'ssl'          => true,
                                                     'ssl_redirect' => true,
                                                     'ssl_cert'     => '/etc/letsencrypt/live/linnaeus.naturalis.nl/fullchain.pem',
