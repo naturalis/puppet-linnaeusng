@@ -26,6 +26,12 @@ class role_linnaeusng (
   $base_path                    = '/data',
   $dev                          = '0',
   $manageenv                    = 'no',
+# cron hash
+  $cron_hash                    = { 'weeklyprune' => { 'command'   => "/usr/bin/docker system prune -a -f",
+                                                       'hour'      => '4',
+                                                       'minute'    => '0',
+                                                       'weekday'   => '0'}
+                                  },
   $logrotate_hash               = { 'apache2'    => { 'log_path' => '/data/linnaeus/apachelog',
                                                       'post_rotate' => "(cd ${repo_dir}; docker-compose exec linnaeus service apache2 reload)",
                                                       'extraline' => 'su root docker'},
@@ -158,5 +164,10 @@ class role_linnaeusng (
   }
 
   create_resources('role_linnaeusng::logrotate', $logrotate_hash)
+
+
+# create cron jobs based on hash
+  create_resources('role_linnaeusng::cron', $cron_hash)
+
 
 }
